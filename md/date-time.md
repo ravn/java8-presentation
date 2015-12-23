@@ -21,5 +21,14 @@ Highlights:
 * The concept of time _passing_ is abstracted out, making it much easier to write tests involving time.
 
 
+---
+
+To help bridge the gap between the old and new API’s, the venerable Date class 
+now has a new method called toInstant() which converts the Date into the new 
+representation. This can be especially effective in those cases where you're 
+working on an API that expects the classic form, but would like to enjoy everything 
+the new API has to offer.
+
+
 
 

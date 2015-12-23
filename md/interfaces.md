@@ -54,3 +54,14 @@ returns a Comparable.
         List<String> l = Arrays.asList("abc", "Bc", "a");
         l.sort(Comparator.comparing(String::length));
         System.out.println(l); // [a, Bc, abc]
+
+
+A more complex Comparator working on two fields could look like (here to sort a deck
+of cards descending by rank and ordering same ranks by suit):
+
+        myDeck.sort(
+            Comparator.comparing(Card::getRank)
+                .reversed()
+                .thenComparing(Comparator.comparing(Card::getSuit)));
+                
+(example stolen from Oracle tutorial https://docs.oracle.com/javase/tutorial/java/IandI/defaultmethods.html )

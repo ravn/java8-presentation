@@ -10,7 +10,7 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
-        Collection<String> foo = new ArrayList<String>();
+        Collection<String> foo = new ArrayList<>();
         Iterator<String> it = foo.iterator();
         while (it.hasNext()) {
             doStuff(it.next());
@@ -43,6 +43,9 @@ public class Main {
         Optional.of("Hello").ifPresent(System.out::println);
         l.sort(Comparator.naturalOrder());
         System.out.println(l);
+        l.sort(Comparator.comparing(String::length));
+        System.out.println(l); // [a, Bc, abc]
+
 
     }
 

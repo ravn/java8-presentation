@@ -15,7 +15,7 @@ Iterators (FIXME: 1995?) - process a data structure one item at a time.
         }
 
 `foreach` (FIXME: Java 5 2001?) - syntactic sugar on Iterators to make it resemble
-a traditional for-loop.
+a traditional for-loop.  Intellij knows how to convert the iterator-while to a foreach.
 
         Collection<String> foo = new ArrayList<String>();
         for (String s : foo) {

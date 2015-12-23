@@ -39,5 +39,18 @@ the super class in the same way as Traits do in Scala.
 Note 2: Implementing multiple interfaces defining the exact same default 
 method is a compilation error.
 
+Note 3: You cannot define variables in an interface so you cannot keep state in
+default methods except by passing in a state keeping object.
 
+static methods:
+---
+This works just like static methods on classes.  The benefit is that they 
+are available just by implementing the class.
 
+A good example is the new `Comparator.comparing` class which makes it easy to 
+create a comparator by providing a method reference or lambda expression which
+returns a Comparable.
+
+        List<String> l = Arrays.asList("abc", "Bc", "a");
+        l.sort(Comparator.comparing(String::length));
+        System.out.println(l); // [a, Bc, abc]

@@ -1,4 +1,4 @@
-nio2 - Getting file systems right
+nio2 - Getting file systems right or at least better
 ===
 
 The original `File` class was hard bound to a file system

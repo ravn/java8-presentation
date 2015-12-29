@@ -46,7 +46,12 @@ public class Main {
         l.sort(Comparator.comparing(String::length));
         System.out.println(l); // [a, Bc, abc]
 
-
+        List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
+        // http://stackoverflow.com/a/24442897/53897
+        // http://blog.jooq.org/2014/01/31/java-8-friday-goodies-lambdas-and-sorting/
+        la.sort(Comparator.comparing((String e) -> e.substring(1,2))
+                .thenComparing(e -> e.substring(0,1)));
+        System.out.println(la); // [ba, ac, bc, ad]
     }
 
     public static void doStuff(String s) {

@@ -29,3 +29,80 @@ The most tedious form of this so far was in the original EJB specification
 where it was used to so JVM 1 could invoke calls on JVM 2 running on 
 another machine.  JVM 1 and JVM 2 both needed to know the interface to 
 be implemented and stubs had to be written both by hand and auto generated.
+
+@FunctionalInterface - make the compiler help
+---
+(text adapted from the javadoc) 
+
+Interfaces _intended_ to be functional interfaces can explicitly be annotated with 
+`@FunctionalInterface`.  If so, compilers are required to 
+generate an error message unless:
+
+* The type is an interface type and not an annotation type, enum, or class.
+* The annotated type satisfies the requirements of a functional interface (meaning it
+  has exactly _one_ abstract method)
+
+However, the compiler will treat any interface meeting the definition of a 
+functional interface as a functional interface regardless of whether or not a 
+FunctionalInterface annotation is present on the interface declaration.
+
+`java.*` functional interfaces in the JRE
+---
+java.awt.KeyEventDispatcher
+java.awt.KeyEventPostProcessor
+java.io.FileFinder
+java.io.FilenameFilter
+java.lang.Runnable
+java.lang.Thread.UncaughtExceptionHandler
+java.nio.file.DirectoryStream.Filter
+java.nio.file.PathMatcher
+java.time.temporal.TemporalAdjuster
+java.time.temporal.TemporalQuery
+java.util.Comparator
+java.util.concurrent.Callable
+java.util.function.BiConsumer
+java.util.function.BiFunction
+java.util.function.BinaryOperator
+java.util.function.BiPredicate
+java.util.function.BooleanSupplier
+java.util.function.Consumer
+java.util.function.DoubleBinaryOperator
+java.util.function.DoubleConsumer
+java.util.function.DoubleFunction
+java.util.function.DoublePredicate
+java.util.function.DoubleSupplier
+java.util.function.DoubleToIntFunction
+java.util.function.DoubleToLongFunction
+java.util.function.DoubleUnaryOperator
+java.util.function.Function
+java.util.function.IntBinaryOperator
+java.util.function.IntConsumer
+java.util.function.IntFunction
+java.util.function.IntPredicate
+java.util.function.IntSupplier
+java.util.function.IntToDoubleFunction
+java.util.function.IntToLongFunction
+java.util.function.IntUnaryOperator
+java.util.function.LongBinaryOperator
+java.util.function.LongConsumer
+java.util.function.LongFunction
+java.util.function.LongPredicate
+java.util.function.LongSupplier
+java.util.function.LongToDoubleFunction
+java.util.function.LongToIntFunction
+java.util.function.LongUnaryFunction
+java.util.function.ObjDoubleConsumer
+java.util.function.ObjIntConsumer
+java.util.function.ObjLongConsumer
+java.util.function.Predicate
+java.util.function.Supplier
+java.util.function.ToDoubleBiFunction
+java.util.function.ToDoubleFunction
+java.util.function.ToIntBiFunction
+java.util.function.ToIntFunction
+java.util.function.ToLongBiFunction
+java.util.function.ToLongFunction
+java.util.function.UnaryOperator
+java.util.logging.Filter
+java.util.prefs.PreferenceChangeListener
+

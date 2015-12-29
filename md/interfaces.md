@@ -45,7 +45,9 @@ default methods except by passing in a state keeping object.
 static methods:
 ---
 This works just like static methods on classes.  The benefit is that they 
-are available just by implementing the class.
+are available just by implementing the class, which in turn makes them
+available to lambda expressions which can only implement an interface but
+not extend an abstract class.
 
 A good example is the new `Comparator.comparing` class which makes it easy to 
 create a comparator by providing a method reference or lambda expression which

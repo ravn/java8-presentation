@@ -19,17 +19,23 @@ comparator needs to return -1 if a<b, 0 if a==b and 1 if a>b.
 With the new default methods on the `Comparator` interface this can be done simpler with
 the `Comparator.comparing()` class.
 
-        List<String> l = Arrays.asList("abc", "Bc", "a");
-        l.sort(Comparator.comparing(String::length));
-        System.out.println(l); // [a, Bc, abc]
+        List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
+
+        la.sort(Comparator.comparing((String e) -> e.substring(1,2))
+                .thenComparing(e -> e.substring(0,1)));
+        System.out.println(la); // [ba, ac, bc, ad]
+
+        la.sort(Comparator.comparing((String e) -> e.substring(1,2))
+                .thenComparing(e -> e.substring(0,1)).reversed());
+        System.out.println(la); // [ad, bc, ac, ba]
 
 
-A more complex Comparator working on two fields could look like (here to sort a deck
-of cards descending by rank and ordering same ranks by suit):
+See http://stackoverflow.com/a/24442897/53897 and
+http://blog.jooq.org/2014/01/31/java-8-friday-goodies-lambdas-and-sorting/
 
-        myDeck.sort(
-            Comparator.comparing(Card::getRank)
-                .reversed()
-                .thenComparing(Comparator.comparing(Card::getSuit)));
-                
-(example stolen from Oracle tutorial https://docs.oracle.com/javase/tutorial/java/IandI/defaultmethods.html )
+static methods
+---
+
+
+Comparators -- helper class
+---

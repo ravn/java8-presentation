@@ -52,6 +52,10 @@ public class Main {
         la.sort(Comparator.comparing((String e) -> e.substring(1,2))
                 .thenComparing(e -> e.substring(0,1)));
         System.out.println(la); // [ba, ac, bc, ad]
+        la.sort(Comparator.comparing((String e) -> e.substring(1,2))
+                .thenComparing(e -> e.substring(0,1)).reversed());
+        System.out.println(la); // [ad, bc, ac, ba]
+
     }
 
     public static void doStuff(String s) {

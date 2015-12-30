@@ -16,7 +16,8 @@ The Nashorn engine
 * has full access to the standard Java libraries including JavaFX.
 * can be used for configuration scripts (code as opposed to stringly typed properties) 
 with the JSR-223 classes.
-
+* Can use many Node.js packages.
+* Netbeans 8+ and IntelliJ 13+ can be used for debugging.
 
 scripting
 ---
@@ -28,7 +29,10 @@ scripting
     EOD
 
 Full access to JVM including JavaFX.  Sweet spot is single-class-sized 
-application.  Main developer side project is Nasven to put Maven artifacts 
+application possibly with a GUI.  
+Main developer side project is "Nasven" to put Maven artifacts 
 on the classpath.
 
 FIXME:  Non-trivial JavaFX example.  Disk usage?
+
+Does not yet appear to have reached critical mass or killer-application.

@@ -56,6 +56,7 @@ public class Main {
                 .thenComparing(e -> e.substring(0,1)).reversed());
         System.out.println(la); // [ad, bc, ac, ba]
 
+        System.out.println(String.join(" ", "Hello", "World"));
     }
 
     public static void doStuff(String s) {

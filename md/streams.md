@@ -22,3 +22,5 @@ a traditional for-loop.  Intellij knows how to convert the iterator-while to a f
             doStuff(s);
         }
 
+
+Use `peek(System.out::println)` to peek FIXME. 

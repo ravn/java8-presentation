@@ -2,12 +2,15 @@ package dk.statsbiblioteket.user.tra.java8;
 
 import java.text.Collator;
 import java.util.*;
+import java.util.function.Function;
+import java.util.logging.Logger;
 
 /**
  * MAIN JAVADOC
  */
 
 public class Main {
+
 
     public static void main(String[] args) {
         Collection<String> foo = new ArrayList<>();
@@ -57,6 +60,9 @@ public class Main {
         System.out.println(la); // [ad, bc, ac, ba]
 
         System.out.println(String.join(" ", "Hello", "World"));
+
+        Logger log = Logger.getLogger("foo");
+        Function<String, String> f = s -> { log.fine(s); return s; };
     }
 
     public static void doStuff(String s) {

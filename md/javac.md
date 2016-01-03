@@ -2,7 +2,7 @@ javac
 ===
 
 New option "-parameters" saves the names of constructor and method parameters 
-so they can be retrieved by reflection.
+so they can be retrieved by reflection.  New checkbox in Eclipse.
 
 (UNTESTED: Helps java decompiler in IntelliJ?)
 

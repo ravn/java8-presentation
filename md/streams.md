@@ -105,12 +105,31 @@ providing the sorted elements again downstream breaking the lazy evaluation.
 
 Peeking:
 ---
-You may need to just _look_ at an element for any reason, usually debugging.  Use
+It can be very helpful to peek at the current element while debugging.
+Use
 the `peek(Consumer<? super T> action)` method for this.
 
 
 
 Use `peek(System.out::println)` to peek FIXME. 
+
+
+Parallel:
+---
+
+Normally you use `foo.stream()` to get a stream from the foo object (if possible).
+Thaddede `foo.parallelStream()` method _may_ return a parallel stream, which is
+
+* multithreaded
+* FIXME: is based on a global, untunable executor pool shared by all parallel streams.
+* has even more overhead than a normal stream.
+* FIXME: cannot be used in Java EE environments (or is that something else?)
+
+This mean that it is a heavy tool that must be used carefully.  
+In a setting with a lot of cores and not many independent threads this 
+is a good start, but the hidden and therefore untunable executor pool mean that
+this should be used carefully.  FIXME:  Artikel der påviser problem hvis en
+executor pool drænes?
 
 
 

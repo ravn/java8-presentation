@@ -32,7 +32,6 @@ The default implementation in `java.util.List` looks like:
         }
     }
 
-
 Note 1: This allows inheriting code in a given class from more places than just
 the super class in the same way as Traits do in Scala.
 
@@ -49,21 +48,22 @@ are available just by implementing the class, which in turn makes them
 available to lambda expressions which can only implement an interface but
 not extend an abstract class.
 
-A good example is the new `Comparator.comparing` class which makes it easy to 
-create a comparator by providing a method reference or lambda expression which
-returns a Comparable.
+This has been used with the `Comparator` interface which now has a
+`Comparator.comparing(...)` method, allowing for snippets like:
 
-        List<String> l = Arrays.asList("abc", "Bc", "a");
-        l.sort(Comparator.comparing(String::length));
-        System.out.println(l); // [a, Bc, abc]
+    people.sort(Utils.<Person>compare()
+          .thenComparing(p -> p.lastName)
+          .thenComparing(p -> p.firstName));
+    people.forEach(System.out::println);
 
 
-A more complex Comparator working on two fields could look like (here to sort a deck
-of cards descending by rank and ordering same ranks by suit):
+Of course this can be abused :)
 
-        myDeck.sort(
-            Comparator.comparing(Card::getRank)
-                .reversed()
-                .thenComparing(Comparator.comparing(Card::getSuit)));
-                
-(example stolen from Oracle tutorial https://docs.oracle.com/javase/tutorial/java/IandI/defaultmethods.html )
+    public interface Test {
+        static void main(String[] args) {
+            System.out.println("I'm ok!");
+        }
+    }
+
+http://stackoverflow.com/q/34710274/53897
+

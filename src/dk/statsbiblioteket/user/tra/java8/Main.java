@@ -1,10 +1,16 @@
 package dk.statsbiblioteket.user.tra.java8;
 
 import java.text.Collator;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +32,7 @@ import java.util.stream.Collectors;
 public class Main {
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Collection<String> foo = new ArrayList<>();
         Iterator<String> it = foo.iterator();
         while (it.hasNext()) {
@@ -110,9 +116,36 @@ public class Main {
         System.out.println(LocalDate.now().with(java.time.temporal.TemporalAdjusters.lastDayOfYear())); // 2016-12-31
         System.out.println(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS)); // 2016-01-12T00:00
 
+        ZoneId id = ZoneId.of("Europe/Copenhagen");
+        ZonedDateTime zdt = ZonedDateTime.of(LocalDateTime.now(), id);
+        OffsetDateTime odt = OffsetDateTime.from(zdt);
+        System.out.println(zdt); // 2016-01-12T12:45:16.923+01:00[Europe/Copenhagen]
+        System.out.println(odt); // 2016-01-12T12:52:49.665+01:00
 
+
+        System.out.println(ZonedDateTime.parse("2007-12-03T10:15:30+01:00[Europe/Paris]").truncatedTo(ChronoUnit.HOURS)); // 2007-12-03T10:00+01:00[Europe/Paris]
 
         System.out.println(new java.util.Date().toInstant()); // 2016-01-12T09:37:14.910Z
+
+        Period period = Period.of(1,2,3);
+        System.out.println(period); // P1Y2M3D  // 1 year, 2 months, 3 days
+        System.out.println(LocalDateTime.now().plus(period)); // 2017-03-15T13:04:08.969
+        System.out.println(Period.between(LocalDate.now(), LocalDate.now().plusMonths(1))); // P1M
+
+        Duration duration = Duration.ofSeconds(3, 5);
+        System.out.println(duration); // PT3.000000005S
+        System.out.println(Duration.between(LocalTime.now(), LocalTime.now().plusMinutes(1))); // PT1M
+
+        Instant then = Instant.now();
+        Thread.sleep(0,50); // 50 nanoseconds
+        System.out.println(ChronoUnit.NANOS.between(then, Instant.now())); // 1000000 = 1 ms.
+
+        LocalDateTime now = LocalDateTime.now();
+        ZoneId.getAvailableZoneIds().stream()
+                .map(zoneid -> ZoneId.of(zoneid))
+                .sorted(Comparator.comparing(Object::toString))
+                .filter(zone -> now.atZone(zone).getOffset().getTotalSeconds() % (60*60) != 0)
+                .forEach(zone -> System.out.println(zone + " " +  now.atZone(zone).getOffset()));
 
     }
 

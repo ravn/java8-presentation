@@ -47,7 +47,7 @@ Method naming conventions:
 
 java.util.Date has toInstant()
 ---
-
+FIXME: wording
 
 To help bridge the gap between the old and new API’s, the venerable Date class 
 now has a new method called toInstant() which converts the Date into the new 
@@ -58,6 +58,16 @@ the new API has to offer.
         System.out.println(new java.util.Date().toInstant()); // 2016-01-12T09:37:14.910Z
 
 Note:  Z==Zulu/UTC time!
+
+* `Calendar.toInstant()` converts the Calendar object to an Instant.
+* `GregorianCalendar.toZonedDateTime()` converts a GregorianCalendar instance to a ZonedDateTime.
+* `GregorianCalendar.from(ZonedDateTime)` creates a GregorianCalendar object using the default locale from a ZonedDateTime instance.
+* `Date.from(Instant)` creates a Date object from an Instant.
+* `Date.toInstant()` converts a Date object to an Instant.
+* `TimeZone.toZoneId()` converts a TimeZone object to a ZoneId.
+
+
+
 
 LocalDate + LocalTime + LocalDateTime
 ---
@@ -123,6 +133,11 @@ Timezones:
 Strings can be parsed:
 
     System.out.println(ZonedDateTime.parse("2007-12-03T10:15:30+01:00[Europe/Paris]").truncatedTo(ChronoUnit.HOURS)); // 2007-12-03T10:00+01:00[Europe/Paris]
+
+Dates and times can be formatted:
+
+    System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm"))); // 2016-01-12 16:09
+
 
 When needing to serialize the zoned date times, convert them to an `OffsetDateTime`, where the
 timezone is resolved to an offset.
@@ -219,3 +234,8 @@ These classes support the needs of developers using non-ISO calendaring systems.
 
 "These classes are there purely for developers who are working on highly internationalized applications that need to take into account local calendaring systems, and they shouldn’t be used by developers without these requirements. Some calendaring systems don’t even have a concept of a month or a week and calculations would need to be performed via the very generic field API."
 
+
+Clock
+---
+
+FIXME: https://docs.oracle.com/javase/tutorial/datetime/iso/clock.html

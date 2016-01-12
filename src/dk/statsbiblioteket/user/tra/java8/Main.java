@@ -11,6 +11,7 @@ import java.time.OffsetDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -147,6 +148,7 @@ public class Main {
                 .filter(zone -> now.atZone(zone).getOffset().getTotalSeconds() % (60*60) != 0)
                 .forEach(zone -> System.out.println(zone + " " +  now.atZone(zone).getOffset()));
 
+        System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm"))); // 2016-01-12 16:09
     }
 
 

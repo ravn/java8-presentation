@@ -1,7 +1,20 @@
 package dk.statsbiblioteket.user.tra.java8;
 
 import java.text.Collator;
-import java.util.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -84,6 +97,23 @@ public class Main {
                     Collectors.joining("+")));
             System.out.println(Arrays.toString(m.entrySet().toArray()));
         }
+
+        System.out.println(LocalDateTime.now()); // 2016-01-12T10:37:14.908
+        System.out.println(LocalDate.of(2012, Month.DECEMBER, 12)); // 2012-12-12
+        System.out.println(LocalDate.ofEpochDay(150));  // 1970-05-31
+        System.out.println(LocalTime.of(17, 18)); // 17:18
+        System.out.println(LocalTime.parse("10:15:30")); // 10:15:30
+
+        System.out.println(LocalDate.now().withDayOfMonth(10).withYear(2010)); // 2010-01-10
+        System.out.println(LocalDate.now().plusWeeks(3).plus(3, ChronoUnit.WEEKS)); // 2016-02-23
+
+        System.out.println(LocalDate.now().with(java.time.temporal.TemporalAdjusters.lastDayOfYear())); // 2016-12-31
+        System.out.println(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS)); // 2016-01-12T00:00
+
+
+
+        System.out.println(new java.util.Date().toInstant()); // 2016-01-12T09:37:14.910Z
+
     }
 
 

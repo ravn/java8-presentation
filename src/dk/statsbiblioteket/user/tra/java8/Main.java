@@ -1,7 +1,27 @@
 package dk.statsbiblioteket.user.tra.java8;
 
 import java.text.Collator;
-import java.util.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -13,7 +33,7 @@ import java.util.stream.Collectors;
 public class Main {
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Collection<String> foo = new ArrayList<>();
         Iterator<String> it = foo.iterator();
         while (it.hasNext()) {
@@ -84,6 +104,51 @@ public class Main {
                     Collectors.joining("+")));
             System.out.println(Arrays.toString(m.entrySet().toArray()));
         }
+
+        System.out.println(LocalDateTime.now()); // 2016-01-12T10:37:14.908
+        System.out.println(LocalDate.of(2012, Month.DECEMBER, 12)); // 2012-12-12
+        System.out.println(LocalDate.ofEpochDay(150));  // 1970-05-31
+        System.out.println(LocalTime.of(17, 18)); // 17:18
+        System.out.println(LocalTime.parse("10:15:30")); // 10:15:30
+
+        System.out.println(LocalDate.now().withDayOfMonth(10).withYear(2010)); // 2010-01-10
+        System.out.println(LocalDate.now().plusWeeks(3).plus(3, ChronoUnit.WEEKS)); // 2016-02-23
+
+        System.out.println(LocalDate.now().with(java.time.temporal.TemporalAdjusters.lastDayOfYear())); // 2016-12-31
+        System.out.println(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS)); // 2016-01-12T00:00
+
+        ZoneId id = ZoneId.of("Europe/Copenhagen");
+        ZonedDateTime zdt = ZonedDateTime.of(LocalDateTime.now(), id);
+        OffsetDateTime odt = OffsetDateTime.from(zdt);
+        System.out.println(zdt); // 2016-01-12T12:45:16.923+01:00[Europe/Copenhagen]
+        System.out.println(odt); // 2016-01-12T12:52:49.665+01:00
+
+
+        System.out.println(ZonedDateTime.parse("2007-12-03T10:15:30+01:00[Europe/Paris]").truncatedTo(ChronoUnit.HOURS)); // 2007-12-03T10:00+01:00[Europe/Paris]
+
+        System.out.println(new java.util.Date().toInstant()); // 2016-01-12T09:37:14.910Z
+
+        Period period = Period.of(1,2,3);
+        System.out.println(period); // P1Y2M3D  // 1 year, 2 months, 3 days
+        System.out.println(LocalDateTime.now().plus(period)); // 2017-03-15T13:04:08.969
+        System.out.println(Period.between(LocalDate.now(), LocalDate.now().plusMonths(1))); // P1M
+
+        Duration duration = Duration.ofSeconds(3, 5);
+        System.out.println(duration); // PT3.000000005S
+        System.out.println(Duration.between(LocalTime.now(), LocalTime.now().plusMinutes(1))); // PT1M
+
+        Instant then = Instant.now();
+        Thread.sleep(0,50); // 50 nanoseconds
+        System.out.println(ChronoUnit.NANOS.between(then, Instant.now())); // 1000000 = 1 ms.
+
+        LocalDateTime now = LocalDateTime.now();
+        ZoneId.getAvailableZoneIds().stream()
+                .map(zoneid -> ZoneId.of(zoneid))
+                .sorted(Comparator.comparing(Object::toString))
+                .filter(zone -> now.atZone(zone).getOffset().getTotalSeconds() % (60*60) != 0)
+                .forEach(zone -> System.out.println(zone + " " +  now.atZone(zone).getOffset()));
+
+        System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm"))); // 2016-01-12 16:09
     }
 
 

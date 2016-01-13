@@ -2,7 +2,8 @@ comparators - easier now with default methods
 ===
 
 Comparators are used for sorting.  Given two elements (a,b) the
-comparator needs to return -1 if a<b, 0 if a==b and 1 if a>b.
+comparator needs to return -1 if a<b, 0 if a==b and 1 if a>b.  Especially null-handling makes this messy
+
 
     public class PersonComparator implements Comparator<? extends Person> {
     

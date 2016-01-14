@@ -13,18 +13,10 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 /**
  * MAIN JAVADOC
@@ -45,6 +37,10 @@ public class Main {
         }
 
         List<String> l = Arrays.asList("abc", "Bc", "a");
+        IntStream si = Arrays.stream(new int[]{1, 2, 3});
+        LongStream sl = Arrays.stream(new long[]{1, 2, 3});
+        DoubleStream sd = Arrays.stream(new double[]{1, 2, 3});
+
         l.sort(Comparator.naturalOrder());
         System.out.println(l); // [Bc, a, abc]
         Collections.sort(l);
@@ -100,8 +96,8 @@ public class Main {
             System.out.println(la.stream().map(s -> s.startsWith("a")).collect(Collectors.toList()));
             System.out.println(la.stream().collect(Collectors.joining(", ")));
             Map<String, String> m = la.stream().collect(
-                    Collectors.groupingBy(e -> e.substring(0,1),
-                    Collectors.joining("+")));
+                    Collectors.groupingBy(e -> e.substring(0, 1),
+                            Collectors.joining("+")));
             System.out.println(Arrays.toString(m.entrySet().toArray()));
         }
 
@@ -128,7 +124,7 @@ public class Main {
 
         System.out.println(new java.util.Date().toInstant()); // 2016-01-12T09:37:14.910Z
 
-        Period period = Period.of(1,2,3);
+        Period period = Period.of(1, 2, 3);
         System.out.println(period); // P1Y2M3D  // 1 year, 2 months, 3 days
         System.out.println(LocalDateTime.now().plus(period)); // 2017-03-15T13:04:08.969
         System.out.println(Period.between(LocalDate.now(), LocalDate.now().plusMonths(1))); // P1M
@@ -138,17 +134,73 @@ public class Main {
         System.out.println(Duration.between(LocalTime.now(), LocalTime.now().plusMinutes(1))); // PT1M
 
         Instant then = Instant.now();
-        Thread.sleep(0,50); // 50 nanoseconds
+        Thread.sleep(0, 50); // 50 nanoseconds
         System.out.println(ChronoUnit.NANOS.between(then, Instant.now())); // 1000000 = 1 ms.
 
         LocalDateTime now = LocalDateTime.now();
         ZoneId.getAvailableZoneIds().stream()
                 .map(zoneid -> ZoneId.of(zoneid))
                 .sorted(Comparator.comparing(Object::toString))
-                .filter(zone -> now.atZone(zone).getOffset().getTotalSeconds() % (60*60) != 0)
-                .forEach(zone -> System.out.println(zone + " " +  now.atZone(zone).getOffset()));
+                .filter(zone -> now.atZone(zone).getOffset().getTotalSeconds() % (60 * 60) != 0)
+                .forEach(zone -> System.out.println(zone + " " + now.atZone(zone).getOffset()));
 
         System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm"))); // 2016-01-12 16:09
+
+        {
+            List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
+            System.out.println(la.stream().sorted().collect(Collectors.toList()));
+        }
+        {
+            List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
+            System.out.println(la.stream().collect(Collectors.toList()));
+            // [ad, bc, ba, ac]
+            System.out.println(la.stream().collect(Collectors.joining("/")));
+            // ad/bc/ba/ac
+            System.out.println(la.stream().collect(Collectors.groupingBy(e -> e.substring(0, 1))));
+            // {a=[ad, ac], b=[bc, ba]}
+            System.out.println(la.stream().collect(Collectors.toCollection(() -> new TreeSet<String>())));
+            // [ac, ad, ba, bc]
+
+        }
+        {
+            List<String> la = Arrays.asList("ad", "bc", "ba", "ad", "bc");
+            System.out.println(la.stream().distinct().collect(Collectors.toList()));
+            // [ad, bc, ba]
+            System.out.println(la.stream().limit(4).collect(Collectors.toList()));
+            // [ad, bc, ba, ad]
+            System.out.println(la.stream().skip(2).collect(Collectors.toList()));
+            // [ba, ad, bc]
+
+        }
+        {
+            List<String> la = Arrays.asList("ad", "bc", "ba", "ad", "bc");
+            System.out.println(la.stream().map(e -> e.toUpperCase()).collect(Collectors.toList()));
+            // [AD, BC, BA, AD, BC]
+            System.out.println(la.stream().mapToLong(String::length).sum());
+            // 10
+        }
+        {
+            List<String> la = Arrays.asList("ad", "bc", "ba", "ad", "bc");
+            la.stream().filter((String e) -> e.startsWith("b")).findAny().ifPresent(System.out::println);
+            // bc
+        }
+        {
+            List<String> la = Arrays.asList("ad", "bc", "ba", "ad", "bc");
+            la.stream().filter((String e) -> e.startsWith("b")).peek(System.out::println).sorted().forEach(e -> {
+            });
+            // bc
+            // ba
+            // bc
+        }
+        {
+            System.out.println(IntStream.range(1, 10).boxed().collect(Collectors.toList()));
+            // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            System.out.println(IntStream.rangeClosed(1, 10).boxed().collect(Collectors.toList()));
+            // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        }
+        System.out.println(Stream.of(1, 2, 3, 4).collect(Collectors.toList()));
+        // [1, 2, 3, 4]
+
     }
 
 

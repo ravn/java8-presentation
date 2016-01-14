@@ -1,9 +1,11 @@
-Streams - Iterators on steroids
+Streams - SQL on collections
 ===
 
-The streams abstraction introduced in Java 8 is just another way to process a data
+The streams abstraction introduced in Java 8 is Oracles implementation
+of "map-reduce" in Java inspired by functional programming.  
+It is just another way to process a data
 structure one item at a time with the added benefit that it is easy to chain operations
-together (like UNIX pipes), and collect the result at the end (like in SQL).
+together (like UNIX pipes), and reduce the result at the end (like in SQL).
 
 
 Iterators (FIXME: 1995?) - process a data structure one item at a time.
@@ -38,39 +40,63 @@ or
 Note that the code now works with one element at a time and the actual loops are hidden 
 in the library routines.
 
-
-Producers:
+collection.stream()..collect(..) -  "SELECT ... FROM collection [GROUP BY ...]"
 ---
 
-Most collections have had the `stream()` method added, but an infinite FIXME can be implemented.  
+    List<String> l = Arrays.asList("abc", "Bc", "a");
+    Stream<String> s = l.stream();
 
-FIXME: int sum = Arrays.stream(myIntArray).sum();
+After processing the stream must end with a terminal operation, which frequently means reducing into a result
+using the `.collect(...)` method.  (For very advanced uses by functional purists `.reduce(...)` can be used).
 
-Collecting:
----
-A collector is responsible for collecting the elements in the stream into a datastructure
-which is then returned.  This is typically a List, a Collection or joined into a String.
 
     List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
-    System.out.println(la.stream().map(s -> s.startsWith("a")).collect(Collectors.toList()));
-    // [true, false, false, true]
-    System.out.println(la.stream().collect(Collectors.joining(", ")));
-    // ad, bc, ba, ac
-
+    System.out.println(la.stream().collect(Collectors.toList()));
+    // [ad, bc, ba, ac]
+    System.out.println(la.stream().collect(Collectors.joining("/")));
+    // ad/bc/ba/ac
+    System.out.println(la.stream().collect(Collectors.toCollection(() -> new TreeSet<String>())));
+    // [ac, ad, ba, bc]
+    System.out.println(la.stream().collect(Collectors.groupingBy(e -> e.substring(0, 1))));
+    // {a=[ad, ac], b=[bc, ba]}
     Map<String, String> m = la.stream().collect(
             Collectors.groupingBy(e -> e.substring(0,1),
             Collectors.joining("+")));
     System.out.println(Arrays.toString(m.entrySet().toArray()));
     // [a=ad+ac, b=bc+ba]
 
-Static imports may shorten this a bit.
+Various helpers:
+
+    IntStream si = Arrays.stream(new int[] {1, 2, 3});
+    LongStream sl = Arrays.stream(new long[] {1, 2, 3});
+    DoubleStream sd = Arrays.stream(new double[] {1, 2, 3});
+
+    System.out.println(Stream.of(1, 2, 3, 4).collect(Collectors.toList()));
+    // [1, 2, 3, 4]
+
+    System.out.println(IntStream.range(1, 10).boxed().collect(Collectors.toList()));
+    // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    System.out.println(IntStream.rangeClosed(1, 10).boxed().collect(Collectors.toList()));
+    // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    new BufferedReader(...).lines()
+    Files.lines(Path.get("..."), Charset.defaultCharSet())
 
 
-Selecting elements:
+Note: The `parallelStream()` method allows for transparently distributing the stream processing
+over all cores.  Read up on the design issues before using!
+
+Note:  By default streams are lazily evaluated.  This mean that the terminating code
+asks "up the stream" for elements which are then generated as needed (as opposed to all the elements
+being generated upstream at once).  Note that some operators like `sorted()` and `distinct()` require
+all the elements to produce their result.
+
+filter() - "WHERE..."
 ---
 
-The `filter(java.util.function.Predicate<T>)` method on a Stream, filters out those
-elements for which the predicate returns false.
+Select only some elements for further processing.  Takes a 
+`java.util.function.Predicate<T>` argument which returns true if the element
+is to be used, and false if it is to be ignored.
 
     List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
     la.stream().filter(s -> s.startsWith("a")).forEach(e -> System.out.println(e));
@@ -81,19 +107,40 @@ Note that the `e->System.out.println(e)` lambda expression can be replaced with 
 `System.out::println` method reference, like this:
 
     la.stream().filter(s -> s.startsWith("a")).forEach(System.out::println);
-    
-FIXME: TakeAny, TakeOne. FIXME: HEAD?
 
-
-Transforming:
----
-The `map(Function<T,R>)` allows for converting a `Stream<T>` to a `Stream<R>`.
-
-
-
-Sorting:
+distinct() - "DISTINCT ..."
 ---
 
+Only return any given value once from a stream, eliminating duplicates.
+
+    List<String> la = Arrays.asList("ad", "bc", "ba", "ad", "bc");
+    System.out.println(la.stream().distinct().collect(Collectors.toList()));
+    // [ad, bc, ba]
+
+limit(..), skip(...) - "LIMIT x"
+---
+
+    List<String> la = Arrays.asList("ad", "bc", "ba", "ad", "bc");
+    System.out.println(la.stream().limit(4).collect(Collectors.toList()));
+    // [ad, bc, ba, ad]
+    System.out.println(la.stream().skip(2).collect(Collectors.toList()));
+    // [ba, ad, bc]
+
+findFirst(), findAny() - "LIMIT 1"
+---
+
+If you just need the first object use `findFirst()`. If you don't care which object use `findAny()` (works well
+in parallel).
+
+Note, this is wrapped in an `Optional` as null is returned if none were available.
+
+    List<String> la = Arrays.asList("ad", "bc", "ba", "ad", "bc");
+    la.stream().filter((String e) -> e.startsWith("b")).findAny().ifPresent(System.out::println);
+    // bc
+
+
+sorted() - "ASC"
+---
 The `sorted()` method allows for sorting the stream elements at this point, either 
 according to their natural order if `Comparable` or by providing a Comparator.
 
@@ -101,40 +148,60 @@ Note that this will cause all elements from upstream to be collected here and so
 providing the sorted elements again downstream breaking the lazy evaluation.
 
 
+    List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
+    System.out.println(la.stream().sorted().collect(Collectors.toList()));
+    // [ac, ad, ba, bc]
 
+
+map(...) - "doStuff(a) AS b"
+---
+
+Mapping means "apply some java.util.function.Function<K,V>() to" the element currently
+in the stream.  The function may return native types which are autoboxed unless
+the appropriate `mapToLong()`/`mapToInt()`/`mapToDouble()` is used instead.
+
+    List<String> la = Arrays.asList("ad", "bc", "ba", "ad", "bc");
+    System.out.println(la.stream().map(e->e.toUpperCase()).collect(Collectors.toList()));
+    // [AD, BC, BA, AD, BC]
+    System.out.println(la.stream().mapToLong(String::length).sum());
+    // 10
+
+    List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
+    System.out.println(la.stream().map(s -> s.startsWith("a")).collect(Collectors.toList()));
+    // [true, false, false, true]
+    System.out.println(la.stream().map(s -> s.startsWith("a")).collect(Collectors.toList()));
+    // [true, false, false, true]
+
+anyMatch(...), allMatch(...), noneMatch(...)  - "EXISTS" (kind of)
+---
+
+Given a stream, 
+
+* `anyMatch()` will return true if *any* element in the stream makes the
+expression true, false otherwise.
+* `allMatch()` will return true if *all* elements in the stream makes the
+expression true, false otherwise.
+* `noneMatch()` will return true if *no* element in the stream makes the
+expression true, false otherwise.
+
+This is an easy way to analyse a complete result.
 
 Peeking:
 ---
 It can be very helpful to peek at the current element while debugging.
-Use
-the `peek(Consumer<? super T> action)` method for this.
+Use the `peek(Consumer<? super T> action)` method for this.
 
-
-
-Use `peek(System.out::println)` to peek FIXME. 
-
-
-Parallel:
----
-
-Normally you use `foo.stream()` to get a stream from the foo object (if possible).
-Thaddede `foo.parallelStream()` method _may_ return a parallel stream, which is
-
-* multithreaded
-* FIXME: is based on a global, untunable executor pool shared by all parallel streams.
-* has even more overhead than a normal stream.
-* FIXME: cannot be used in Java EE environments (or is that something else?)
-
-This mean that it is a heavy tool that must be used carefully.  
-In a setting with a lot of cores and not many independent threads this 
-is a good start, but the hidden and therefore untunable executor pool mean that
-this should be used carefully.  FIXME:  Artikel der påviser problem hvis en
-executor pool drænes?
+    List<String> la = Arrays.asList("ad", "bc", "ba", "ad", "bc");
+    la.stream().filter((String e) -> e.startsWith("b")).peek(System.out::println).sorted().forEach(e->{});
+    // bc
+    // ba
+    // bc
 
 
 
 Exceptions:
 ---
+
 FIXME:  The standard intefaces intended for Streams do _not_ throw any exception (and as
 the Java type system does not support generics in the `throws` part of the method
 declaration it is very tedious to remidy).  So if an exception could be thrown

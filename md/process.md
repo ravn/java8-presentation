@@ -1,8 +1,6 @@
 Process
 ===
 
-FIXME:: Rewrite
-
 Three new methods in the Process class -
 
 * `destroyForcibly()` - terminates a process with a much higher degree of success than before.

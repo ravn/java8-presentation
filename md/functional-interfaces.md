@@ -6,7 +6,7 @@ to be run later and/or elsewhere in your code.  Examples include:
 
 * Comparators
 * Callables/Runnables
-* FIXME:  Swing stuff
+* FxIXME:  Swing stuff
 
 The general approach in Java has been to define a suitable interface,
 implement the interface with the code snippet to be run, and pass

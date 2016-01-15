@@ -7,6 +7,8 @@ the GC uses one object for both references and discards the other.
 
 String.substring()
 ---
+Note:  Important implementation change!
+
 Used to point to same underlying char array as the original String, so the
 char array could not be garbage collected even when the original String
 went out of scope.  Fixed in Java 1.7.0_06.

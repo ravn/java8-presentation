@@ -1,4 +1,4 @@
-random numbers
+Random numbers
 ===
 
 "Java 8 has added a new method called `SecureRandom.getInstanceStrong()` 

@@ -47,7 +47,6 @@ Method naming conventions:
 
 java.util.Date has toInstant()
 ---
-FIXME: wording
 
 To help bridge the gap between the old and new API’s, the venerable Date class 
 now has a new method called toInstant() which converts the Date into the new 
@@ -227,6 +226,19 @@ Note that for differences the ChronoUnit enums have a `between(...)` method
 (The tick resolution on Linux for Thread.sleep is 1 ms, so this is the minimum time
 the scheduler will let the sleep last).
 
+Clock
+---
+
+From https://docs.oracle.com/javase/tutorial/datetime/iso/clock.html:
+"Most temporal-based objects provide a no-argument now() method that provides the current date and time using the system clock and the default time zone. These temporal-based objects also provide a one-argument now(Clock) method that allows you to pass in an alternative Clock."
+
+If for _any_ reason you cannot use the clock as-is from the underlying operating system, using a `java.time.Clock` allows you to control
+it fully.   Note there are two kinds, ticking and standing still:
+
+* `Clock.offset(Clock, Duration)` returns a ticking clock that is offset by the specified Duration.
+* `Clock.systemUTC()` returns a clock representing the Greenwich/UTC time zone.
+* `Clock.fixed(Instant, ZoneId)` always return the same Instant.  For this clock, *time stands still*.
+
 Chronology/ChronoLocalDate/ChronoLocalDateTime/ChronoZonedDateTime
 ---
 
@@ -234,8 +246,9 @@ These classes support the needs of developers using non-ISO calendaring systems.
 
 "These classes are there purely for developers who are working on highly internationalized applications that need to take into account local calendaring systems, and they shouldn’t be used by developers without these requirements. Some calendaring systems don’t even have a concept of a month or a week and calculations would need to be performed via the very generic field API."
 
-
-Clock
+Date and Time Formatting
 ---
 
-FIXME: https://docs.oracle.com/javase/tutorial/datetime/iso/clock.html
+"Although the java.time.format.DateTimeFormatter provides a powerful mechanism for formatting date and time values, you can also use the java.time temporal-based classes directly with java.util.Formatter and String.format, using the same pattern-based formatting that you use with the java.util date and time classes."
+
+

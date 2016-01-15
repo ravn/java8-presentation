@@ -1,5 +1,7 @@
 package dk.statsbiblioteket.user.tra.java8;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.Collator;
 import java.time.Duration;
 import java.time.Instant;
@@ -13,10 +15,24 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeSet;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.logging.Logger;
-import java.util.stream.*;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 /**
  * MAIN JAVADOC
@@ -25,7 +41,7 @@ import java.util.stream.*;
 public class Main {
 
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws Exception {
         Collection<String> foo = new ArrayList<>();
         Iterator<String> it = foo.iterator();
         while (it.hasNext()) {
@@ -93,7 +109,7 @@ public class Main {
 
         {
             List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
-            System.out.println(la.stream().map(s -> s.startsWith("a")).collect(Collectors.toList()));
+            System.out.println(la.stream().map((String s) -> s.startsWith("a")).collect(Collectors.toList()));
             System.out.println(la.stream().collect(Collectors.joining(", ")));
             Map<String, String> m = la.stream().collect(
                     Collectors.groupingBy(e -> e.substring(0, 1),
@@ -200,8 +216,14 @@ public class Main {
         }
         System.out.println(Stream.of(1, 2, 3, 4).collect(Collectors.toList()));
         // [1, 2, 3, 4]
+        Callable<String> callable = () -> { System.out.println(">"); return "s"; };
 
-    }
+        // Math.multiplyExact(1_000_000, 1_000_000);
+        // Exception in thread "main" java.lang.ArithmeticException: integer overflow
+
+        System.out.println(Files.walk(Paths.get(System.getProperty("user.home")+"/tmp")).count());
+        // 4422  (files in $HOME/tmp)
+     }
 
 
     public static String doStuff(String s) {

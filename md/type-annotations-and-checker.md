@@ -9,8 +9,8 @@ The idea appears to be to improve static checking.
 
 The Oracle Tutorial recommends looking into the Checker framework for this. 
 
+It appears that Checker is capable of detecting SQL injection.
 
 http://types.cs.washington.edu/checker-framework/
 https://docs.oracle.com/javase/tutorial/java/annotations/type_annotations.html
 
-FIXME:  Example with SQL injection checker etc.

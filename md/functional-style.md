@@ -1,3 +1,7 @@
+DO NOT USE - ESSENTIAL IS IN streams.md
+===
+!
+
 Functional style - providing methods to apply to data
 ===
 
@@ -37,8 +41,7 @@ the code snippets doing what is actually needed.
 
 This allows to write e.g. a sort in two lines:
 
-##FIXME: TWO LINE SORT EXAMPLE
-
+--
 
 Predicate - "yes/no"?
 ===

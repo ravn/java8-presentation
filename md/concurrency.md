@@ -6,7 +6,9 @@ http://winterbe.com/posts/2015/05/22/java8-concurrency-tutorial-atomic-concurren
 
 StampedLock
 ---
-Fast optimistic lock, but if failing (which should be rarely) you will have to redo your work.
+Fast optimistic lock, but if failing (which should be rarely)
+you will have to redo your work.
+
 
 
 LongAdder

@@ -202,13 +202,13 @@ Use the `peek(Consumer<? super T> action)` method for this.
 Exceptions:
 ---
 
-FIXME:  The standard intefaces intended for Streams do _not_ throw any exception (and as
-the Java type system does not support generics in the `throws` part of the method
-declaration it is very tedious to remidy).  So if an exception could be thrown
-it would be the standard `Exception ` type and not a more specific subtype - which is rather useless
-- or by wrapping in a `RuntimeException`.  The Word Of God is to
-just suck it up and do it - Oracle did not want to create a parallel hierarchy
-with exception throwing interface methods.
+The standard interfaces intended for Streams do _not_ throw any exception!
+
+It was either this or `throws Exception` as the Java type system does not support
+generics in the `throws` part of the method.
+
+The official Word Of God is that the way to do this, is to either wrap
+in a RuntimeException or a custom exception.
 
 
 

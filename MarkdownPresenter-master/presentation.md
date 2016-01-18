@@ -8,11 +8,105 @@ FIXME: BLURB COMING HERE!!
   - F5 or Ctrl+R reload work well too.
 
 !
+
+JVM stuff
+---
+
+* `invokedynamic` byte code added.  Allows user code to help resolving
+type information at runtime instead of compile time.  Is very helpful
+to "duck typing"-languages.
+
+
+* Permgen is replaced with Metaspace which uses native memory instead of
+a fixed size pool.  Can grow much bigger.  Can be monitored with
+`-verbose:gc` and friends, plus VisualVM.
+
+* Default garbage collector is Parallel (which can stop the world).
+Alternative G1 is for +4GB heaps and can do string deduplication.
+
+* `@Annotation`-metadata can be added to almost any type usage (JSR-308)
+and can be repeated.
+
+!
+
+Repeatable `@Annotations`
+---
+
+       @Retention( RetentionPolicy.RUNTIME )
+        public @interface Cars {
+            Manufacturer[] value() default{};
+        }
+        @Manufacturer("Mercedes Benz")
+        @Manufacturer("Toyota")
+        @Manufacturer("BMW")
+        @Manufacturer("Range Rover")
+        public interface Car { }
+ 
+        @Repeatable(value = Cars.class )
+        public @interface Manufacturer {
+            String value();
+        };
+
+Note:  Several `@Manufacturer` annotations on `Car`
+(silently put in a list).
+
+!
+Static checking using annotations:
+---
+
+The JVM itself does not yet enforce any kind behavior based on
+annotations on source code (javac does).
+
+Note that annotations mentioned in the following may be in different
+packages and not immediately interchangeable.
+
+!
+
+IntelliJ 1/2:
+---
+Respects the following directly as part of the source analysis:
+
+* `@NotNull` - null value is forbidden to return (for methods) and
+  hold (for local variables and fields).
+* `@Nullable` - null value is perfectly valid to return (for methods),
+  pass to (for parameters) and hold (for local variables and methods)
+* `@NonNls` - string is not to be internationalized.
+* `@Contract` - hint the compiler about input and return values.
+* `@ParametersAreNonnullByDefault` - annotate a method once, instead
+  of all parameters with `@NotNull`.
+
+Also respects JSR-305 and FindBugs annotations directly if part of the project.
+
+Annotations may be put outside Java source in an annotations.xml file
+(needs to be configured in the SDK).
+
+
+!
+
+IntelliJ 2/2
+---
+
+Null analysis can be done with "Analyze | Infer Nullity" and
+appropriate annotations added.
+
+Checker framework checks at compile time: 
+
+* `@NotNull` - flag if null is being assigned.
+* `@ReadOnly` - flag any attempt to change the object.
+* `@Regex` - is this string assigned a valid regular expression _string_?
+* `@Tainted` + `@Untainted` - avoid mixing data that does not go
+together like user input being used in system commands, or sensitive
+data in log statements.
+* `@m` - ensure units are dealt with properly.
+
+
+!
+
 String
 ===
 
 * String.substring() does not hold on to underlying char array.
-* Garbage Collection deduplicates strings.
+* G1 Garbage Collection deduplicates strings.
 * String.join(..) allows for easy concatenation of strings.
 
 !
@@ -33,20 +127,6 @@ at https://www.reddit.com/comments/1qw73v
 
 !
 
-Garbage Collection
----
-
-Permgen is replaced with Metaspace which uses
-native memory instead of a fixed size pool.  Can
-grow much bigger.
-
-Default GC is Parallel (which can stop the world).
-Alternatives are CMS and G1.
-
-G1 is for +4GB heaps and can do String deduplication!
-
-!
-
 String.join(...)
 ---
 New helper method.  First argument is separator, remaining arguments are joined with
@@ -62,10 +142,95 @@ Use `Collectors.joining()` or `StringJoiner` for more advanced cases.
 
 !
 
+Interfaces:
+---
+
+
+* default methods 
+* static methods 
+
+Interfaces can now hold code.  This helps adding functionality to
+existing API's without breaking backward compatibility.
+
+!
+
+Interfaces - default methods:
+---
+
+It was impossible to add new methods to interfaces without breaking
+existing code as these new methods needed to be implemented too.
+
+A default method has an implementation directly in the interface, and
+does not _have_ to be implemented (but can) when instantiated.
+Example: java.util.List.sort(Comparator...).
+
+        List<String> l = Arrays.asList("abc", "Bc", "a");
+        l.sort(Comparator.naturalOrder());
+        System.out.println(l); // [Bc, a, abc]
+
+!
+
+The default implementation in `java.util.List` looks like:
+
+    default void sort(Comparator<? super E> c) {
+        Object[] a = this.toArray();
+        Arrays.sort(a, (Comparator) c);
+        ListIterator<E> i = this.listIterator();
+        for (Object e : a) {
+            i.next();
+            i.set((E) e);
+        }
+    }
+
+1. This allows multiple inheritance as Traits do in Scala.
+2. Implementing multiple interfaces defining the exact same default 
+method is a compilation error.
+3. You cannot define variables in an interface so you cannot keep state in
+default methods except by passing in a state keeping object.
+
+!
+
+Interfaces - static methods:
+---
+
+Works like for classes.  They are available just by implementing the
+interface (which is beneficial for λ-expressions).  Comparator has
+added ".comparing(...)" method.
+
+(FIXME:  Better example.)
+
+!
+
+Of course this can be abused...
+
+    public interface Test {
+        static void main(String[] args) {
+            System.out.println("I'm ok!");
+        }
+    }
+
+http://stackoverflow.com/q/34710274/53897
+
+
+!
 Deep breath!
 ---
 
 ![z!](/computer-monitor-cat-2.jpg "ZZZ!")
+
+!
+It all comes together...
+---
+
+* λ-expressions
+* Streams
+* java.util.function.*
+
+![Zzzz!](/bf3f4c4e4cbc909f957f939bb6bc7cc6.jpg "rainbow cat")
+
+_Because sometimes, you need a rainbow butterfly unicorn kitten._
+
+
 
 
 !
@@ -296,14 +461,8 @@ arguments instead of one.
 
 !
 
-Deep breath! #2
----
 
 ![Zzzz!](/ce547544ed6f035ab1b1ddef8d2388b8.jpg "sleepy cat")
-
-!
-
-![Zzzz!](/bf3f4c4e4cbc909f957f939bb6bc7cc6.jpg "rainbow cat")
 
 !
 

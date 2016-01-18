@@ -1,4 +1,6 @@
-## Welcome to **Markdown Presenter**!
+## Java 8
+
+FIXME: BLURB COMING HERE!!
 
 - Update "presentation.md" by any text editor which you prefer.
  - to separate slides insert a paragraph with an exclamation mark.
@@ -6,42 +8,228 @@
   - F5 or Ctrl+R reload work well too.
 
 !
+λ-expressions:
+===
 
-## Moving between slides
+λ-expressions are related to anonymous classes so an interface
+can be implemented without writing a whole new class, but in a more concise way.
 
-- Left/Right arrow key to change slide.
-- Swipe left/right on touch device to change slide.
+_λ-calculus is a formal system in mathematical logic by Alonzo Church for expressing computation based on function abstraction and application using variable binding and substitution.
+Lambda calculus is a universal model of computation equivalent to a Turing machine.
+λ is used in lambda terms (also called lambda expressions) to **denote binding a
+variable in a function**._
+
+!
+Remember
+---
+
+* λ-expressions are _declarations_, not _invocations_.   Actually invoking the
+code must be done "outside" the lambda expression itself.
+
+* FIXME: more stuff
 
 !
 
-## Jump to the page
-- 0~9 keys and enter to direct page jump like a PowerPoint.
+A single statement:
+---
+
+    () -> 42
+    () -> null
+
+    (int x) -> x + 1
+    (String s) -> "Hello " + s
+
+    (int x, String s) -> x + " " + s
+
+    (int a, int b, int c) -> a + b + c
+
+Zero or more comma separated variable definitions in parenthesis, `->` and
+an expression to be evaluated.
 
 !
 
-## Page transition effect
+Block:
+---
 
-- 'e','f' key combination to enable fade effect at changing slide.
-- 'e','n' to disable the effect.
+    () -> { System.out.println(
+                System.currentTimeMillis()
+            ) }
 
-!
+    (String s) -> { log.debug("{}", s);
+                    return s;
+                  }
 
-## Printable
-
-- You can print out this presentation from PC browser.
-- The recomended configuration:
- - Layout - Landscape
- - Margins - No margin
- - Options - Enable to printing background colors
+If there is no return statement, it corresponds to a `void` method.
 
 !
 
-## Share your slides
+Inferred parameter types:
+---
 
-- If you print out the presentation as a PDF file, then you can upload it to "slideshare.com".
+    (x) -> x + 1
+    (s) -> "Hello " + s
+    (a, b, c) -> a + b + c
+
+If there is only one parameter the parenthesis is optional:
+
+    x -> x + 1
+    s -> "Hello " + s
+    s -> { log.debug("{}", s); return s; }
+
+The compiler makes an effort to infer the parameter types and the result type from
+the surrounding context.  It may give up, and the parameters then have to
+be explicitly typed.
+
 
 !
 
-# Be happy! :)
+Scope:
+---
+Lambdas use lexical scope in the same way as a normal `{}`-delimited block, so as with
+anonymous classes it is allowed to
+refer to variables outside the lambda if they are "final or effectively final".
 
-> _Rather than fighting with keynote or powerpoint **for hours**, I can whip up a presentation in minutes using markdown._
+Variables may be overridden if needed.
+
+"Effectively final variables" mean variables or parameters
+whose values are never changed after they are initialized - the `final` keyword is
+_not_
+required!
+
+Note: `this` is unchanged inside the lambda, and doesn't refer to the lambda itself!
+
+!
+Interface implemented:
+---
+
+Regardless where a λ-expression is used, it _must_ implement an interface
+with only one abstract method!
+
+A λ-expression may only throw those exceptions declared in the interface.
+
+The JRE has functional interfaces with up to two parameters (including native types).
+None of these allow throwing checked exceptions.  Streams use these so
+they don't accept these λ-expressions either.
+
+
+
+
+!
+
+IntelliJ 15+:
+---
+
+* Convert method reference to lambda expression and back.
+* Convert anonymous type to method reference.
+* Add inferred lambda parameter types.
+* Shows javadoc for method implemented with cursor on `->` or `::` and Ctrl-Q.
+* Add type and parenthesis to single inferred parameter - `s->{}` -> `(String s)->{}`
+* Debugger supports lambda expressions inside chained method calls (like streams).
+
+!
+
+Eclipse 4.5+ Ctrl-1:
+---
+
+* Convert anonymous class to lambda expression and back.
+* Convert method reference to lambda expression and back.
+* Add inferred lambda parameter types.
+* Remove/add parenthesis around single inferred parameter.
+* Convert lambda expression body from expression to block and back.
+* View method implemented by hovering mouse on `->` or `::`. Use Ctrl-hover to navigate to declaration.
+* Debugger supports lambda expressions.
+
+
+!
+@FunctionalInterface
+---
+
+Interfaces _intended_ to be functional interfaces can explicitly be annotated with
+`@FunctionalInterface`.  If so, compilers are required to
+check:
+
+* Is an interface (and not something else)
+* Has exactly _one_ abstract method.
+
+However, the compiler will treat _**any interface meeting the definition of a
+functional interface as a functional interface**_ regardless of whether or not a
+`@FunctionalInterface` annotation is present on the interface declaration.
+
+!
+
+`java.*` functional interfaces in the JRE
+---
+* java.awt.KeyEventDispatcher
+* java.awt.KeyEventPostProcessor
+* java.io.FileFinder
+* java.io.FilenameFilter
+* java.lang.Runnable
+* java.lang.Thread.UncaughtExceptionHandler
+* java.nio.file.DirectoryStream.Filter
+* java.nio.file.PathMatcher
+* java.time.temporal.TemporalAdjuster
+* java.time.temporal.TemporalQuery
+* java.util.Comparator
+* java.util.concurrent.Callable
+
+!
+
+* java.util.function.BiConsumer
+* java.util.function.BiFunction
+* java.util.function.BinaryOperator
+* java.util.function.BiPredicate
+* java.util.function.BooleanSupplier
+* java.util.function.Consumer
+* java.util.function.DoubleBinaryOperator
+* java.util.function.DoubleConsumer
+* java.util.function.DoubleFunction
+* java.util.function.DoublePredicate
+* java.util.function.DoubleSupplier
+* java.util.function.DoubleToIntFunction
+* java.util.function.DoubleToLongFunction
+* java.util.function.DoubleUnaryOperator
+
+!
+
+* java.util.function.Function
+* java.util.function.IntBinaryOperator
+* java.util.function.IntConsumer
+* java.util.function.IntFunction
+* java.util.function.IntPredicate
+* java.util.function.IntSupplier
+* java.util.function.IntToDoubleFunction
+* java.util.function.IntToLongFunction
+* java.util.function.IntUnaryOperator
+
+!
+
+* java.util.function.LongBinaryOperator
+* java.util.function.LongConsumer
+* java.util.function.LongFunction
+* java.util.function.LongPredicate
+* java.util.function.LongSupplier
+* java.util.function.LongToDoubleFunction
+* java.util.function.LongToIntFunction
+* java.util.function.LongUnaryFunction
+* java.util.function.ObjDoubleConsumer
+* java.util.function.ObjIntConsumer
+* java.util.function.ObjLongConsumer
+
+!
+
+* java.util.function.Predicate
+* java.util.function.Supplier
+* java.util.function.ToDoubleBiFunction
+* java.util.function.ToDoubleFunction
+* java.util.function.ToIntBiFunction
+* java.util.function.ToIntFunction
+* java.util.function.ToLongBiFunction
+* java.util.function.ToLongFunction
+* java.util.function.UnaryOperator
+* java.util.logging.Filter
+* java.util.prefs.PreferenceChangeListener
+
+Note that the many variants with Long/Int/Double/Binary is to support native non-object
+types.  If you only use objects you can ignore them.  The Bi-prefix means two
+arguments instead of one.
+

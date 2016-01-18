@@ -8,6 +8,67 @@ FIXME: BLURB COMING HERE!!
   - F5 or Ctrl+R reload work well too.
 
 !
+String
+===
+
+* String.substring() does not hold on to underlying char array.
+* Garbage Collection deduplicates strings.
+* String.join(..) allows for easy concatenation of strings.
+
+!
+
+String.substring(...)
+---
+Note:  Important implementation change!
+
+Now create a new String, instead of pointing to same underlying
+char array as the original String, so the
+char array could not be garbage collected even when the original String
+went out of scope.  Fixed in Java 1.7.0_06.
+
+http://stackoverflow.com/a/20275133/53897
+
+Note:  substring is now O(n) instead of O(1). Discussion on impact
+at https://www.reddit.com/comments/1qw73v
+
+!
+
+Garbage Collection
+---
+
+Permgen is replaced with Metaspace which uses
+native memory instead of a fixed size pool.  Can
+grow much bigger.
+
+Default GC is Parallel (which can stop the world).
+Alternatives are CMS and G1.
+
+G1 is for +4GB heaps and can do String deduplication!
+
+!
+
+String.join(...)
+---
+New helper method.  First argument is separator, remaining arguments are joined with
+the separator.
+
+    System.out.println(
+        String.join(" ", "Hello", "World")
+    );
+
+prints `Hello World`.
+
+Use `Collectors.joining()` or `StringJoiner` for more advanced cases.
+
+!
+
+Deep breath!
+---
+
+![z!](/computer-monitor-cat-2.jpg "ZZZ!")
+
+
+!
 λ-expressions:
 ===
 
@@ -99,7 +160,7 @@ required!
 Note: `this` is unchanged inside the lambda, and doesn't refer to the lambda itself!
 
 !
-Interface implemented:
+Interface underneath:
 ---
 
 Regardless where a λ-expression is used, it _must_ implement an interface
@@ -232,4 +293,19 @@ functional interface as a functional interface**_ regardless of whether or not a
 Note that the many variants with Long/Int/Double/Binary is to support native non-object
 types.  If you only use objects you can ignore them.  The Bi-prefix means two
 arguments instead of one.
+
+!
+
+Deep breath! #2
+---
+
+![Zzzz!](/ce547544ed6f035ab1b1ddef8d2388b8.jpg "sleepy cat")
+
+!
+
+![Zzzz!](/bf3f4c4e4cbc909f957f939bb6bc7cc6.jpg "rainbow cat")
+
+!
+
+![Zzzz!](/6a00d8341c858253ef00e54f60280d8834-640wi.jpg "horrified cat")
 

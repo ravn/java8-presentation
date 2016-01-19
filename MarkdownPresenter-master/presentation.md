@@ -1,31 +1,90 @@
-## Java 8
+Java 8
+===
 
-FIXME: BLURB COMING HERE!!
+* Basics for all I could find of new stuff for Java 8.
+* Some Java 7 too.
 
-- Update "presentation.md" by any text editor which you prefer.
- - to separate slides insert a paragraph with an exclamation mark.
-- Hit space key at this browser to rapid reload.
-  - F5 or Ctrl+R reload work well too.
+(This is markdown rendered on the fly as a web page presentation)
+
+
 
 !
 
-JVM stuff
+JVM stuff first...
 ---
 
-* `invokedynamic` byte code added.  Allows user code to help resolving
-type information at runtime instead of compile time.  Is very helpful
-to "duck typing"-languages.
+![Zzzz!](/6a00d8341c858253ef00e54f60280d8834-640wi.jpg "horrified cat")
 
 
-* Permgen is replaced with Metaspace which uses native memory instead of
-a fixed size pool.  Can grow much bigger.  Can be monitored with
-`-verbose:gc` and friends, plus VisualVM.
 
-* Default garbage collector is Parallel (which can stop the world).
-Alternative G1 is for +4GB heaps and can do string deduplication.
+!
+### `invokedynamic` byte code instruction added.
 
-* `@Annotation`-metadata can be added to almost any type usage (JSR-308)
-and can be repeated.
+Allows user space code to help Hotspot to resolve
+type information at runtime instead of compile time.
+
+Is very helpful to "duck typing"-languages like JRuby.
+
+Also used for creating the object representation for λ-expressions.
+
+http://blog.headius.com/2008/09/first-taste-of-invokedynamic.html
+!
+
+### Garbage Collection
+
+Permgen is replaced with
+Metaspace which use native memory instead of
+a fixed size pool.
+
+Can grow _much_ bigger!
+
+* `-verbose:gc` - activate simple GC logging.
+* `-XX:+PrintGCDetails` - activate detailed GC logging.
+* `-Xloggc:<file>` - send GC log to _file_ instead of console.
+* `-XX:+PrintGCDateStamps` - add date stamp to every line.
+* `-XX:+PrintGCTimeStamps` - adds seconds since JVM start to every line.
+
+
+!
+
+### Garbage collectors
+
+Default garbage collector is still Parallel (which can stop the world).
+
+Concurrent-Mark-Sweep performs better due to background work but can still
+stop the world.
+
+Alternative G1 is for +4GB heaps which can do string deduplication. May be default
+in Java 9.
+
+!
+
+### New tools
+
+Java Packager - "performs task related to packaging and signing Java/JavaFX
+applications".  JavaFX is a new GPU-powered UI for Java,
+and is not covered in this presentation.
+
+jdeps - static dependencies of applications and libraries.
+
+Java Flight Recorder can collect low level data for Java Mission Control
+to allow after-the-fact incident analysis. (Commercial, can be enabled at runtime)
+
+Advanced Management Console can give an overview of Java applications
+(and their JRE's) in an organization. Runs in WebLogic 12. (Commercial)
+
+
+
+!
+
+## Miscellaneous.
+
+* Endorsed dirs mechanism and extension mechanism are deprecated as of 8u40.
+
+* Scheduled regular security updates with predictable numbers.
+
+* JRE expires automatically when the next security update is released.
+
 
 !
 
@@ -465,6 +524,3 @@ arguments instead of one.
 ![Zzzz!](/ce547544ed6f035ab1b1ddef8d2388b8.jpg "sleepy cat")
 
 !
-
-![Zzzz!](/6a00d8341c858253ef00e54f60280d8834-640wi.jpg "horrified cat")
-

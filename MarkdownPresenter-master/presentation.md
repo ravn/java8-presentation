@@ -28,6 +28,7 @@ Is very helpful to "duck typing"-languages like JRuby.
 Also used for creating the object representation for λ-expressions.
 
 http://blog.headius.com/2008/09/first-taste-of-invokedynamic.html
+
 !
 
 ### Garbage Collection
@@ -44,6 +45,14 @@ Can grow _much_ bigger!
 * `-XX:+PrintGCDateStamps` - add date stamp to every line.
 * `-XX:+PrintGCTimeStamps` - adds seconds since JVM start to every line.
 
+!
+
+Example:
+---
+
+![](/Java8_Metaspace_dynamic_resize.png "java 8 gc output from article")
+
+https://dzone.com/articles/java-8-permgen-metaspace
 
 !
 
@@ -55,7 +64,7 @@ Concurrent-Mark-Sweep performs better due to background work but can still
 stop the world.
 
 Alternative G1 is for +4GB heaps which can do string deduplication. May be default
-in Java 9.
+in Java 9.  Rarely stops the world.
 
 !
 
@@ -67,12 +76,46 @@ and is not covered in this presentation.
 
 jdeps - static dependencies of applications and libraries.
 
+jjs - JVM-based JavaScript engine useful for scripting (more later)
+
 Java Flight Recorder can collect low level data for Java Mission Control
 to allow after-the-fact incident analysis. (Commercial, can be enabled at runtime)
 
 Advanced Management Console can give an overview of Java applications
 (and their JRE's) in an organization. Runs in WebLogic 12. (Commercial)
 
+!
+
+Nashorn - JSR-223 Javascript engine
+---
+
+Newly written for Java 8 to utilize `invokedynamic`.
+
+* is 2-3 times slower than the highly optimized V8 engine after warmup.
+* can easily be used for scripts with `jjs -scripting` .
+* has full access to the standard Java libraries including JavaFX.
+* can be used for configuration scripts (code as opposed to stringly typed properties) 
+with the JSR-223 classes.
+* Can use many Node.js packages.
+* Netbeans 8+ and IntelliJ 13+ can be used for debugging.
+
+!
+
+Nashorn scripting:
+---
+
+
+    #!/usr/bin/env jjs -scripting
+
+    print(<<EOD);
+    ...${arguments[0]}---
+    EOD
+
+Full access to JVM including JavaFX.  Sweet spot is single-class-sized
+application possibly with a GUI.  Main developer side project is
+"Nasven" to put Maven artifacts on the classpath.
+
+Does not yet appear to have reached critical mass or found a killer-application.
 
 
 !
@@ -84,6 +127,7 @@ Advanced Management Console can give an overview of Java applications
 * Scheduled regular security updates with predictable numbers.
 
 * JRE expires automatically when the next security update is released.
+
 
 
 !
@@ -158,6 +202,7 @@ together like user input being used in system commands, or sensitive
 data in log statements.
 * `@m` - ensure units are dealt with properly.
 
+http://types.cs.washington.edu/checker-framework/
 
 !
 
@@ -174,10 +219,10 @@ String.substring(...)
 ---
 Note:  Important implementation change!
 
-Now create a new String, instead of pointing to same underlying
-char array as the original String, so the
-char array could not be garbage collected even when the original String
-went out of scope.  Fixed in Java 1.7.0_06.
+Now create a new String, instead of pointing to same underlying char
+array as the original String, so the char array could not be garbage
+collected even when the original String went out of scope.  Fixed in
+Java 1.7.0_06.
 
 http://stackoverflow.com/a/20275133/53897
 
@@ -198,6 +243,16 @@ the separator.
 prints `Hello World`.
 
 Use `Collectors.joining()` or `StringJoiner` for more advanced cases.
+
+!
+java.time.*
+---
+
+![z!](/d1619b87f6883eaeddd581f5d1184b79.jpg "ZZZ!")
+
+
+
+
 
 !
 

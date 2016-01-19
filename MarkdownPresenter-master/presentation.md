@@ -86,6 +86,25 @@ Advanced Management Console can give an overview of Java applications
 
 !
 
+javac
+---
+
+New option `-parameters` saves the names of constructor and method
+parameters so they can be retrieved by reflection.  New checkbox in
+Eclipse.
+
+New option `-profile X` ensures that the source conforms to compact
+profile X (a well defined subset of the JRE).
+
+* "compact1" is for simple command line programs.
+* "compact2" is "compact1" + RMI/JDBC/XML
+* "compact3" is "compact2" + JMX/JNDI/security/annotations
+
+
+`https://blogs.oracle.com/jtc/entry/a_first_look_at_compact`
+
+!
+
 Nashorn - JSR-223 Javascript engine
 ---
 
@@ -128,7 +147,327 @@ Does not yet appear to have reached critical mass or found a killer-application.
 
 * JRE expires automatically when the next security update is released.
 
+!
 
+But what can we do _in Java_ itself?
+---
+
+![](/Cute-Kitten-kittens-16096139-1280-800.jpg "ready!")
+
+!
+
+Path & Files
+---
+NIO2: FIXME: Write section on nio2.
+
+
+!
+
+new Date+Time API (JSR-310)
+---
+
+The JODA library has for a long time been recommended instead of
+the default `Calendar` and `Date` classes, especially for differences.  
+
+JSR-310 set out to produce a new set of date and
+time handling classes for the standard Java library, where the obvious
+choice was to adapt JODA, but the architect
+disagreed with some of the design decisions, and took the opportunity to 
+fix them.  JSR-310 was included in Java 8 under `java.time.*`.  
+
+The JODA web site recommends
+using the new routines instead of JODA for Java 8 onwards.  There is not 
+an immediate upgrade path from JODA to `java.time.*` so some
+manual work is needed to do so.
+
+`http://www.oracle.com/technetwork/articles/java/jf14-date-time-2125367.html`
+
+!
+
+
+Highlights:
+
+* Values are always immutable (also known as thread safe).
+* Easy to express _durations_ useful relative to a given time.
+* Machine time - `Instant` - is separated from human perception of time (like days in a calendar, clock on a wall).
+* The concept of time _passing_ is abstracted out - `Clock` - making it much easier to write tests involving time.
+* Chronologies are abstracted out, allowing non-standard calendars.  Useful in Japan and Thailand).
+
+![z!](/67e00a0c98132e0be9f1574c8d86bf88.jpg "ZZZ!")
+
+!
+
+Method naming conventions 1/2:
+---
+
+* `of` - creates an instance  where the factory is primarily validating the input parameters, not converting them.
+* `from ` - converts the input parameters to an instance of the target class, which may involve losing information from the input.
+* `parse` - parses the input string to produce an instance of the target class.
+* `format` - uses the specified formatter to format the values in the temporal object to produce a string.
+* `get` - returns a part of the state of the target object.
+* `is` - queries the state of the target object.
+
+!
+
+Method naming conventions 2/2:
+---
+* `with` - returns a copy of the target object with one element changed; this is the immutable equivalent to a set method on a JavaBean.
+* `plus` - returns a copy of the target object with an amount of time added.
+* `minus` - returns a copy of the target object with an amount of time subtracted.
+* `to` - converts this object to another type.
+* `at` - combines this object with another.
+
+
+!
+
+java.util.Date.toInstant()
+---
+
+To help bridge the gap between the old and new API’s, the venerable Date class 
+now has a new method called toInstant() which converts the Date into the new 
+representation. This can be especially effective in those cases where you're 
+working on an API that expects the classic form, but would like to enjoy everything 
+the new API has to offer.
+
+    System.out.println(new java.util.Date().toInstant());
+    // 2016-01-12T09:37:14.910Z
+
+Note:  Z==Zulu/UTC time!
+
+!
+
+Bridging methods:
+---
+
+
+* `Calendar.toInstant()` converts the Calendar object to an Instant.
+* `GregorianCalendar.toZonedDateTime()` converts a GregorianCalendar instance to a ZonedDateTime.
+* `GregorianCalendar.from(ZonedDateTime)` creates a GregorianCalendar object using the default locale from a ZonedDateTime instance.
+* `Date.from(Instant)` creates a Date object from an Instant.
+* `Date.toInstant()` converts a Date object to an Instant.
+* `TimeZone.toZoneId()` converts a TimeZone object to a ZoneId.
+
+!
+
+
+
+LocalDate + LocalTime + LocalDateTime
+---
+
+Note: `Month` and `DayOfWeek` enums can make code more readable. `Year` class has `isLeap()` method to hel
+identify leap years.
+
+* LocalDate represents a date as seen from the context of the observer, like a calendar on the wall.
+* LocalTime represents a point in time as seen from the context of the observer, like a clock on the wall.
+* LocalDateTime represents both.
+
+Note that there is no trailing timezone indicator.
+
+    LocalDateTime.now() // 2016-01-12T10:37:14.908
+    LocalDate.of(2012, Month.DECEMBER, 12) // 2012-12-12
+    LocalDate.ofEpochDay(150) // 1970-05-31
+    LocalTime.of(17, 18) // 17:18
+    LocalTime.parse("10:15:30") // 10:15:30
+
+!
+
+
+Adjustments can be made:
+
+    LocalDate.now().withDayOfMonth(10).withYear(2010)
+    // 2010-01-10
+    LocalDate.now().plusWeeks(3).plus(3, ChronoUnit.WEEKS)
+    // 2016-02-23
+
+"Temporal adjusters" know of calendars.
+
+    LocalDate.now()
+    .with(java.time.temporal.TemporalAdjusters.lastDayOfYear())
+    // 2016-12-31
+
+!
+
+Different precisions may be interesting, like rounding to the number of seconds or days
+a given time corresponds to:
+
+    LocalDateTime.now().truncatedTo(ChronoUnit.DAYS)
+    // 2016-01-12T00:00
+
+An exception is thrown if the truncation unit is incompatible with the value.
+
+!
+
+Additionally the `MonthDay` class is useful for birthdays.  The
+`YearMonth` class is well suited for credit card expiration dates.
+
+All these classes are supported in JDBC by the getObject/setObject
+methods, but do not have dedicated helper methods.
+
+!
+
+Timezones
+---
+
+Instructional video:
+
+<https://www.youtube.com/watch?v=-5wpm-gesOY>
+
+
+`ZoneOffset` is the period offset from UTC.
+
+    ZoneOffset offset = ZoneOffset.of("+2:00");
+
+`ZoneId` is an identifier for a time zone region.  Use "PLT" or longer like "Europe/Copenhagen".
+
+`ZonedDateTime` is "a date and time with a fully qualified time zone.  This
+ can resolve an offset at any point in time.  The rule of thumb is that if you want
+ to represent a date and time without relying of the context of a specific server, you should
+ use ZonedDateTime.
+
+!
+
+    ZoneId id = ZoneId.of("Europe/Copenhagen");
+    ZonedDateTime zdt = ZonedDateTime.of(LocalDateTime.now(), id);
+    System.out.println(zdt);
+    // 2016-01-12T12:45:16.923+01:00[Europe/Copenhagen]
+
+Strings can be parsed:
+
+    ZonedDateTime.parse("2007-12-03T10:15:30+01:00[Europe/Paris]")
+    .truncatedTo(ChronoUnit.HOURS)
+    // 2007-12-03T10:00+01:00[Europe/Paris]
+
+Dates and times can be formatted:
+
+    LocalDateTime.now().format(
+        DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm"))
+    // 2016-01-12 16:09
+
+!
+
+
+When needing to serialize the zoned date times, convert them to an `OffsetDateTime`, where the
+timezone is resolved to an offset.
+
+    ZoneId id = ZoneId.of("Europe/Copenhagen");
+    ZonedDateTime zdt =
+        ZonedDateTime.of(LocalDateTime.now(), id);
+	
+    OffsetDateTime odt = OffsetDateTime.from(zdt);
+    System.out.println(odt); // 2016-01-12T12:52:49.665+01:00
+
+
+There are many helper methods to massage these values further.
+
+!
+
+Periods 
+---
+
+"Periods represents a date-based value such as '3 months and a day', which is a distance on the timeline" in terms
+of wall time.
+Can be used for calculations, and to find the "difference" between two date/times.
+Periods are aware of daylight savings time.
+
+    Period period = Period.of(1,2,3);
+    System.out.println(period);
+    // P1Y2M3D  // 1 year, 2 months, 3 days
+    System.out.println(LocalDateTime.now().plus(period));
+    // 2017-03-15T13:04:08.969
+    System.out.println(Period.between(LocalDate.now(),
+        LocalDate.now().plusMonths(1))); // P1M
+
+!
+
+Durations
+---
+
+Durations are
+like Periods, but time-based instead, and do not take daylight savings time in consideration.  For a Duration
+a day is _always_ 24 hours.
+
+    Duration duration = Duration.ofSeconds(3, 5);
+    System.out.println(duration); // PT3.000000005S
+    System.out.println(Duration.between(
+        LocalTime.now(), LocalTime.now().plusMinutes(1)));
+    // PT1M
+
+!
+
+Note that for differences the ChronoUnit enums have a `between(...)` method
+
+    Instant then = Instant.now();
+    Thread.sleep(0,50); // 50 nanoseconds
+    System.out.println(
+        ChronoUnit.NANOS.between(then, Instant.now()));
+    // 1000000
+
+(The tick resolution on Linux for Thread.sleep is 1 ms, so this is the minimum time
+the scheduler will let the sleep last).
+
+!
+
+Clock
+---
+
+"Most temporal-based objects provide a no-argument `now()` method that
+use the system clock and the default time zone, _and_ a one-argument
+now(Clock) method that allows you to pass in an alternative Clock."
+
+If for _any_ reason you cannot use the clock as-is from the underlying
+operating system, using a `java.time.Clock` allows you to control it
+fully.  Note there are two kinds, ticking and standing still:
+
+* `Clock.offset(Clock, Duration)` returns a ticking clock that is offset by the specified Duration.
+* `Clock.systemUTC()` returns a clock representing the Greenwich/UTC time zone.
+* `Clock.fixed(Instant, ZoneId)` always return the same Instant.  For this clock, *time stands still*.
+
+<https://docs.oracle.com/javase/tutorial/datetime/iso/clock.html>
+
+!
+
+Chronology + ChronoLocalDate + ChronoLocalDateTime + ChronoZonedDateTime
+---
+
+These classes support the needs of developers using non-ISO
+calendaring systems.
+
+_These classes are there purely for developers who are working on
+highly internationalized applications that need to take into account
+local calendaring systems, and they shouldn’t be used by developers
+without these requirements. Some calendaring systems don’t even have a
+concept of a month or a week and calculations would need to be
+performed via the very generic field API._
+
+!
+
+Date and Time Formatting
+---
+
+_Although the java.time.format.DateTimeFormatter provides a powerful
+mechanism for formatting date and time values, you can also use the
+java.time temporal-based classes directly with java.util.Formatter and
+String.format, using the same pattern-based formatting that you use
+with the java.util date and time classes._
+
+Left as an exercise for the interested reader O:)
+
+!
+
+Concurrency
+---
+
+<http://www.infoq.com/articles/Java-8-Quiet-Features>
+<http://winterbe.com/posts/2015/05/22/java8-concurrency-tutorial-atomic-concurrent-map-examples/>
+
+`StampedLock`: Fast optimistic lock, but if failing (which should be
+rarely) you will have to redo your work.
+
+`LongAdder`: Faster than AtomicLong (different way to handle contention).  
+
+Parallel Sorting: `Arrays.parallelSort(myArray)` distributes over
+cores.  Underlying implementation cannot be tuned, and performance
+degrades under high load.
 
 !
 
@@ -245,6 +584,45 @@ prints `Hello World`.
 Use `Collectors.joining()` or `StringJoiner` for more advanced cases.
 
 !
+
+Random numbers
+---
+
+"Java 8 has added a new method called `SecureRandom.getInstanceStrong()` 
+whose aim is to have the JVM choose a secure provider for you. "
+
+!
+
+Exact Math
+---
+
+"In cases where the size is int or long and overflow errors need to be detected, 
+the methods `addExact`, `subtractExact`, `multiplyExact`, and `toIntExact` throw an 
+`ArithmeticException` when the results overflow. "
+
+    Math.multiplyExact(1_000_000, 1_000_000);
+    // Exception in thread "main" java.lang.ArithmeticException: integer overflow
+
+
+http://docs.oracle.com/javase/8/docs/api/java/lang/Math.html
+
+!
+
+Process
+---
+
+Three new methods in the Process class -
+
+* `destroyForcibly()` - terminates a process with a much higher degree of success than before.
+* `isAlive()` tells if a process launched by your code is still alive.
+* A new overload for `waitFor()` lets you specify the amount of time
+  you want to wait for the process to finish. This returns whether the
+  process exited successfully or timed-out in which case you might
+  terminate it.
+
+
+!
+
 java.time.*
 ---
 
@@ -327,6 +705,14 @@ http://stackoverflow.com/q/34710274/53897
 
 
 !
+
+Optional - defusing `null` values
+---
+
+FIXME: TEXT
+
+!
+
 Deep breath!
 ---
 
@@ -575,6 +961,18 @@ arguments instead of one.
 
 !
 
+A stream version of the example in the tutorial -
+https://docs.oracle.com/javase/tutorial/datetime/iso/timezones.html
+- of printing out
+what time it is now in not-whole-hour-offset timezones:
+
+
+    LocalDateTime now = LocalDateTime.now();
+    ZoneId.getAvailableZoneIds().stream()
+        .map(zoneid -> ZoneId.of(zoneid))
+        .sorted(Comparator.comparing(Object::toString))
+        .filter(zone -> now.atZone(zone).getOffset().getTotalSeconds() % (60*60) != 0)
+        .forEach(zone -> System.out.println(zone + " " +  now.atZone(zone).getOffset()));
 
 ![Zzzz!](/ce547544ed6f035ab1b1ddef8d2388b8.jpg "sleepy cat")
 

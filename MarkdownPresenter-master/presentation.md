@@ -405,8 +405,13 @@ Dizzy yet?
 
 !
 
+
 new Date+Time API (JSR-310)
 ---
+
+![](/67e00a0c98132e0be9f1574c8d86bf88.jpg "catlendar")
+
+!
 
 The JODA library has for a long time been recommended instead of
 the default `Calendar` and `Date` classes, especially for differences.  
@@ -865,17 +870,6 @@ Three new methods in the Process class -
 
 !
 
-java.time.*
----
-
-![z!](/d1619b87f6883eaeddd581f5d1184b79.jpg "ZZZ!")
-
-
-
-
-
-!
-
 Interfaces:
 ---
 
@@ -951,7 +945,19 @@ http://stackoverflow.com/q/34710274/53897
 Optional - defusing `null` values
 ---
 
-FIXME: TEXT
+A `java.util.Optional<T>` either holds exactly one T instance, or is empty.
+
+Methods:
+* `empty()` - return empty Optional instance.
+* `filter(Predicate)` - if value is present and matches predicate return Optional describing value else an empty Optional.
+* `flatMap(Function)` - if value is present, apply function to value, else return empty Optional.
+* `get()` - gets the element (if empty, throw NoSuchElementException)
+* `ifPresent(Consumer)` - if value is present, invoke consumer with value, otherwise do nothing.
+* `isPresent()` - returns true if value present, false otherwise.
+* `of(T)` - returns optional with value. If value is null, throw exception.
+* `ofNullable(T)` - returns optional with value if non-null, otherwise an empty Optional.
+* `orElse(T)` - return value held if present, otherwise return argument.
+* `orElseThrow(Supplier<X>)` - return value if present, otherwise throw the exception created by the provided supplier.
 
 !
 

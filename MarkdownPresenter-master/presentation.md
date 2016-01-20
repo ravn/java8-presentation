@@ -381,15 +381,27 @@ This is untested by me.  It is adapted from the Oracle Java Tutorial page.
 
 !
 
-But wait!  There is more!!
+Lots of more fun!
 ---
+
 
 * Asynchronous I/O - call backs - needed for scalability
 * Socket-channel functionality - sockets refactored
+* Create own FileSystemProvider  (like ZipFileSystem)
+* `java.io.Console` - Character-based console device.  `readPassword()`
+
 
 You'll know when you need it!
 
+<https://docs.oracle.com/javase/8/docs/technotes/guides/io/fsp/zipfilesystemprovider.html>
 
+
+!
+
+Dizzy yet?
+---
+
+![](lil_bub_2013.png "pffft")
 
 !
 

@@ -1,6 +1,7 @@
 package dk.statsbiblioteket.user.tra.java8;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.Collator;
 import java.time.Duration;
@@ -223,7 +224,31 @@ public class Main {
 
         System.out.println(Files.walk(Paths.get(System.getProperty("user.home")+"/tmp")).count());
         // 4422  (files in $HOME/tmp)
-     }
+
+        Path p5 = Paths.get(System.getProperty("user.home"),"logs", "foo.log");
+        System.out.println(p5 + " " + p5.toAbsolutePath());
+        // /home/tra/logs/foo.log /home/tra/logs/foo.log
+        // System.out.println(p5.toRealPath());
+        // Exception in thread "main" java.nio.file.NoSuchFileException: /home/tra/logs/foo.log
+        System.out.println(Paths.get("/proc", ".", "..", "tmp").normalize());
+        // /tmp
+
+        System.out.println(p5.toUri());
+        // file:///home/tra/logs/foo.log
+
+        System.out.println(Paths.get("/tmp").resolve("log"));
+        // /tmp/log
+
+        System.out.println(Paths.get("/tmp/foo").relativize(Paths.get("/tmp/bar")));
+        // ../bar
+
+        System.out.println(Paths.get("/tmp/foo").equals(Paths.get("/tmp/foo")));
+        // true
+        System.out.println(Paths.get("/tmp/foo").endsWith("foo"));
+        // true
+        System.out.println(Paths.get("/tmp/foo").endsWith("oo"));
+        // FALSE <- not string level.
+    }
 
 
     public static String doStuff(String s) {

@@ -156,9 +156,239 @@ But what can we do _in Java_ itself?
 
 !
 
-Path & Files
+I/O
 ---
-NIO2: FIXME: Write section on nio2.
+
+New I/O classes replacing `java.io.File` with friends.  Not hard bound
+to underlying operating system.  File system implementations can be added
+(e.g. ZipFileSystem).
+
+`java.nio.file.Path` - text-only representation of a location in a given file
+system.  Bridge:  `File.toPath()`.
+
+`java.nio.file.Paths` - operations on paths.
+
+`java.nio.file.Files` - operations on file systems.
+
+
+Note:  All output shown has been generated on  Linux.
+
+!
+
+Path + Paths:
+---
+
+    Path p1 = Paths.get("/tmp/foo");
+    Path p2 = Paths.get(args[0]);
+    Path p3 = Paths.get(URI.create("file:///Users/joe/FileTest.java"));
+    Path p4 = FileSystems.getDefault().getPath("/users/sally");
+    Path p5 = Paths.get(System.getProperty("user.home"),"logs", "foo.log");
+
+    System.out.println(p5.toAbsolutePath());
+    // /home/tra/logs/foo.log
+    System.out.println(p5.toUri());
+    // file:///home/tra/logs/foo.log
+    System.out.println(p5.toRealPath());
+    // Exception in thread "main" NoSuchFileException: /home/tra/logs/foo.log
+    System.out.println(Paths.get("/proc", ".", "..", "tmp").normalize());
+    // /tmp
+
+
+!
+
+    Paths.get("/tmp").resolve("log")
+    // /tmp/log
+
+    Paths.get("/tmp/foo").relativize(Paths.get("/tmp/bar"))
+    // ../bar
+
+    Paths.get("/tmp/foo").equals(Paths.get("/tmp/foo"))
+    // true
+
+    Paths.get("/tmp/foo").endsWith("foo")
+    // true
+    Paths.get("/tmp/foo").endsWith("oo")
+    // FALSE <- not string level.
+
+!
+
+`Files.exists(Path, LinkOption...)` and `Files.notExists(Path, LinkOption...)` can
+be used to examine if a Path exists or not.  If both returns false, the existence
+of the file cannot be verified.
+
+`Files.isReadable(Path)`, `Files.isWritable(Path)`, and `Files.isExecutable(Path)`
+examines the permissions at the time of execution.  Beware race conditions.
+
+`Files.isSameFile(Path, Path)` compares two paths - respecting symbolic links - to
+see if they locate the same file on the file system.
+
+!
+
+`Files.delete(Path)` throws an exception if the deletion fails (NoSuchFileException,
+DirectoryNotEmptyException, IOException, SecurityException) which can
+be examined to handle the problem.
+
+`Files.deleteIfExists(Path)` does not throw an exception if the file did
+not exist.
+
+!
+
+`Files.copy(Path, Path, CopyOption...)` provides a built-in copy method.
+Target must not exist, unless `CopyOption.REPLACE_EXISTING` is provided.
+
+Directories can be copied.  Files inside directories will not be copied.
+
+When copying a symbolic link, the target of the link is copied.  To copy
+the symbolic link itself provide `CopyOption.NOFOLLOW_LINKS` or
+`CopyOption.REPLACE_EXISTING`.
+
+`CopyOption.COPY_ATTRIBUTES` copies the file attributes too.  Notably
+last-modified-time.
+
+`Files.copy(...)` also accepts InputStream and OutputStream to
+copy single byte streams.
+
+!
+
+`Files.move(Path, Path, CopyOption...)` moves a file or directory.
+The move fails if the target file exists, unless `CopyOption.REPLACE_EXISTING`
+is provided.  If the target is a symbolic link, the link is replaced but what it pointed to
+is unaffected.
+
+Empty directories can be moved.  If the directory is not empty, the move is allowed
+when the directory can be moved without moving the contents of that directory.
+(For Unix that would be possible within the same partition by renaming the directory)
+
+`CopyOptions.ATOMIC_MOVE` performs the move as an atomic operation.  An
+exception is thrown if this is not supported by the file system.  Doing this
+guarantees that any process watching the directory accesses a complete file.
+
+!
+
+Metadata (yay!)
+---
+
+* `Files.size(Path)` - in bytes
+* `Files.isDirectory(Path, LinkOption)`
+* `Files.isRegularFile(Path, LinkOption...)`
+* `Files.isSymbolicLink(Path)`
+* `Files.isHidden(Path)`
+* `Files.getLastModifiedTime(Path, LinkOption...)` and
+`Files.setLastModifiedTime(Path, FileTime)`
+
+!
+
+More metadata!
+---
+
+* `Files.getOwner(Path, LinkOption...)` and `Files.setOwner(Path, UserPrincipal)`
+* `Files.getPosixFilePermissions(Path, LinkOption...)` and `Files.setPosixFilePermissions(Path, Set<PosixFilePermission>)`
+* `Files.getAttribute(Path, String, LinkOption...)` and `Files.setAttribute(Path, String, Object, LinkOption...)`
+* `Files.readAttributes(Path, String, LinkOption...)` and `Files.readAttributes(Path, Class<A>, LinkOption...)`
+
+* `Files.getFileStore(Path)` - get total space, unallocated space, and usable space (and more).
+
+
+!
+
+Reading/writing/creating
+---
+
+Many methods now take an optional `OpenOption` parameter.
+The `StandardOpenOptions` enum provide:
+
+* `WRITE` - open for write access.
+* `APPEND` - append new data to end of file (WRITE, CREATE)
+* `TRUNCATE_EXISTING` - truncates file to zero bytes (WRITE)
+* `CREATE_NEW` - create new file, throw exception if already exists.
+* `CREATE` - open file if it exists, create new otherwise.
+* `DELETE_ON_CLOSE` - delete the file when the stream is closed. Good for temporary files.
+* `SPARSE` - hint that new file will be sparse.  Supported by NTFS and possibly others.
+* `SYNC` - keep the file (both content and metadata) synchronized with the underlying storage device.
+* `DSYNC` - keep the file content synchronized with the underlying storage device.
+
+!
+
+Misc helpers:
+
+    byte[] fileArray = Files.readAllBytes(Paths.get(...));
+    Files.write(Paths.get(...), fileArray);
+    Files.createFile(Path)
+    Files.createTempFile(Path, String, String, FileAttribute<?>)
+
+
+Helpers for as efficient I/O as possible:
+
+    Files.newBufferedReader(Path, Charset, OpenOption...);
+    Files.newBufferedWriter(Path, Charset, OpenOption...);
+    Files.newInputStream(Path, OpenOption...);
+    Files.newOutputStream(Path, OpenOption...);
+    Files.newByteChannel(Path, OpenOption...)
+
+!
+
+    FileSystems.getDefault().getRootDirectories()
+    Files.createDirectory(Path)
+    Files.createTempDirectory(Path, String, FileAttribute<?>)
+    Files.createSymbolicLink(Path, Path, FileAttribute<?>)
+    Files.createLink(Path, Path)  // hard link!
+    Files.readSymbolicLink(Path) // resolve link
+
+
+
+File names in a directory can be read one by one with
+`Files.newDirectoryStream(Path, ...)`.  An optional glob filter
+can be used.
+
+!
+
+Walking the file tree:
+---
+
+Implement `FileVisitor<Path>` or override `SimpleFileVisitor<Path>` and
+use it with `Files.walkFileTree(Path, FileVisitor)`.  Can weld under
+water.
+
+For most uses `File.walk(Path)` may be sufficient.
+
+!
+
+Watching a directory for changes:
+---
+
+* Create a `WatchService`
+* For each directory, get a `WatchKey` by registering it and the events you want with the watch service
+* Create infinite listening loop listening for events.
+* When an event occurs, the key is signalled and put in the watch service queue.
+* Retrieve the key from the watch service queue.  The file name is in the key.
+* Process all pending events for the key as needed.
+* Reset the key, and resume waiting for events.
+* Close the service.
+
+<https://docs.oracle.com/javase/tutorial/essential/io/notification.html>
+
+!
+
+
+Events:
+
+* `ENTRY_CREATE`
+* `ENTRY_DELETE`
+* `ENTRY_MODIFY`
+* `OVERFLOW` - events may have been lost or discarded.  Does not require registration.
+
+This is untested by me.  It is adapted from the Oracle Java Tutorial page.
+
+!
+
+But wait!  There is more!!
+---
+
+* Asynchronous I/O - call backs - needed for scalability
+* Socket-channel functionality - sockets refactored
+
+You'll know when you need it!
+
 
 
 !

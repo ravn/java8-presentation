@@ -331,7 +331,7 @@ Helpers for as efficient I/O as possible:
     Files.createDirectory(Path)
     Files.createTempDirectory(Path, String, FileAttribute<?>)
     Files.createSymbolicLink(Path, Path, FileAttribute<?>)
-    Files.createLink(Path, Path)  // hard link!
+    Files.createLink(Path, Path) // hard link!
     Files.readSymbolicLink(Path) // resolve link
 
 
@@ -350,6 +350,8 @@ use it with `Files.walkFileTree(Path, FileVisitor)`.  Can weld under
 water.
 
 For most uses `File.walk(Path)` may be sufficient.
+
+![walk!](/a-cat-climbing-down-a-tree-81775.jpg "Cat walking a tree")
 
 !
 
@@ -370,7 +372,8 @@ Watching a directory for changes:
 !
 
 
-Events:
+WatchService Events:
+---
 
 * `ENTRY_CREATE`
 * `ENTRY_DELETE`
@@ -411,6 +414,9 @@ new Date+Time API (JSR-310)
 
 ![](/67e00a0c98132e0be9f1574c8d86bf88.jpg "catlendar")
 
+
+`http://www.oracle.com/technetwork/articles/java/jf14-date-time-2125367.html`
+
 !
 
 The JODA library has for a long time been recommended instead of
@@ -427,7 +433,6 @@ using the new routines instead of JODA for Java 8 onwards.  There is not
 an immediate upgrade path from JODA to `java.time.*` so some
 manual work is needed to do so.
 
-`http://www.oracle.com/technetwork/articles/java/jf14-date-time-2125367.html`
 
 !
 
@@ -437,32 +442,9 @@ Highlights:
 * Values are always immutable (also known as thread safe).
 * Easy to express _durations_ useful relative to a given time.
 * Machine time - `Instant` - is separated from human perception of time (like days in a calendar, clock on a wall).
+* Human time - `LocalDateTime` - as seen on calendars and watches has no notion of machine time.
 * The concept of time _passing_ is abstracted out - `Clock` - making it much easier to write tests involving time.
-* Chronologies are abstracted out, allowing non-standard calendars.  Useful in Japan and Thailand).
-
-![z!](/67e00a0c98132e0be9f1574c8d86bf88.jpg "ZZZ!")
-
-!
-
-Method naming conventions 1/2:
----
-
-* `of` - creates an instance  where the factory is primarily validating the input parameters, not converting them.
-* `from ` - converts the input parameters to an instance of the target class, which may involve losing information from the input.
-* `parse` - parses the input string to produce an instance of the target class.
-* `format` - uses the specified formatter to format the values in the temporal object to produce a string.
-* `get` - returns a part of the state of the target object.
-* `is` - queries the state of the target object.
-
-!
-
-Method naming conventions 2/2:
----
-* `with` - returns a copy of the target object with one element changed; this is the immutable equivalent to a set method on a JavaBean.
-* `plus` - returns a copy of the target object with an amount of time added.
-* `minus` - returns a copy of the target object with an amount of time subtracted.
-* `to` - converts this object to another type.
-* `at` - combines this object with another.
+* Chronologies are abstracted out, allowing non-standard calendars.  Useful in Japan and Thailand.
 
 
 !
@@ -470,11 +452,11 @@ Method naming conventions 2/2:
 java.util.Date.toInstant()
 ---
 
-To help bridge the gap between the old and new API’s, the venerable Date class 
+_"To help bridge the gap between the old and new API’s, the venerable Date class
 now has a new method called toInstant() which converts the Date into the new 
 representation. This can be especially effective in those cases where you're 
 working on an API that expects the classic form, but would like to enjoy everything 
-the new API has to offer.
+the new API has to offer."_
 
     System.out.println(new java.util.Date().toInstant());
     // 2016-01-12T09:37:14.910Z
@@ -505,8 +487,8 @@ Note: `Month` and `DayOfWeek` enums can make code more readable. `Year` class ha
 identify leap years.
 
 * LocalDate represents a date as seen from the context of the observer, like a calendar on the wall.
-* LocalTime represents a point in time as seen from the context of the observer, like a clock on the wall.
-* LocalDateTime represents both.
+* LocalTime represents a specific time in a day as seen from the context of the observer, like a clock on the wall.
+* LocalDateTime combines both.
 
 Note that there is no trailing timezone indicator.
 
@@ -518,6 +500,27 @@ Note that there is no trailing timezone indicator.
 
 !
 
+Method naming conventions 1/2:
+---
+
+* `of` - creates an instance  where the factory is primarily validating the input parameters, not converting them.
+* `from ` - converts the input parameters to an instance of the target class, which may involve losing information from the input.
+* `parse` - parses the input string to produce an instance of the target class.
+* `format` - uses the specified formatter to format the values in the temporal object to produce a string.
+* `get` - returns a part of the state of the target object.
+* `is` - queries the state of the target object.
+
+!
+
+Method naming conventions 2/2:
+---
+* `with` - returns a copy of the target object with one element changed; this is the immutable equivalent to a set method on a JavaBean.
+* `plus` - returns a copy of the target object with an amount of time added.
+* `minus` - returns a copy of the target object with an amount of time subtracted.
+* `to` - converts this object to another type.
+* `at` - combines this object with another.
+
+!
 
 Adjustments can be made:
 
@@ -557,8 +560,11 @@ Timezones
 
 Instructional video:
 
+![timezones](/west-bank-multiple-timezones.png "numberphile")
+
 <https://www.youtube.com/watch?v=-5wpm-gesOY>
 
+!
 
 `ZoneOffset` is the period offset from UTC.
 
@@ -764,9 +770,8 @@ Respects the following directly as part of the source analysis:
 * `@ParametersAreNonnullByDefault` - annotate a method once, instead
   of all parameters with `@NotNull`.
 
-Also respects JSR-305 and FindBugs annotations directly if part of the project.
-
-Annotations may be put outside Java source in an annotations.xml file
+Also respects JSR-305 and FindBugs annotations directly if part of the
+project. Annotations may be put outside Java source in an annotations.xml file
 (needs to be configured in the SDK).
 
 
@@ -810,10 +815,10 @@ array as the original String, so the char array could not be garbage
 collected even when the original String went out of scope.  Fixed in
 Java 1.7.0_06.
 
-http://stackoverflow.com/a/20275133/53897
+<http://stackoverflow.com/a/20275133/53897>
 
 Note:  substring is now O(n) instead of O(1). Discussion on impact
-at https://www.reddit.com/comments/1qw73v
+at <https://www.reddit.com/comments/1qw73v>
 
 !
 
@@ -848,10 +853,11 @@ the methods `addExact`, `subtractExact`, `multiplyExact`, and `toIntExact` throw
 `ArithmeticException` when the results overflow. "
 
     Math.multiplyExact(1_000_000, 1_000_000);
-    // Exception in thread "main" java.lang.ArithmeticException: integer overflow
+    // Exception in thread "main"
+    //    java.lang.ArithmeticException: integer overflow
 
 
-http://docs.oracle.com/javase/8/docs/api/java/lang/Math.html
+<http://docs.oracle.com/javase/8/docs/api/java/lang/Math.html>
 
 !
 
@@ -873,59 +879,27 @@ Three new methods in the Process class -
 Interfaces:
 ---
 
-
-* default methods 
-* static methods 
+* static methods
+* default methods
 
 Interfaces can now hold code.  This helps adding functionality to
 existing API's without breaking backward compatibility.
 
-!
-
-Interfaces - default methods:
----
-
-It was impossible to add new methods to interfaces without breaking
-existing code as these new methods needed to be implemented too.
-
-A default method has an implementation directly in the interface, and
-does not _have_ to be implemented (but can) when instantiated.
-Example: java.util.List.sort(Comparator...).
-
-        List<String> l = Arrays.asList("abc", "Bc", "a");
-        l.sort(Comparator.naturalOrder());
-        System.out.println(l); // [Bc, a, abc]
-
-!
-
-The default implementation in `java.util.List` looks like:
-
-    default void sort(Comparator<? super E> c) {
-        Object[] a = this.toArray();
-        Arrays.sort(a, (Comparator) c);
-        ListIterator<E> i = this.listIterator();
-        for (Object e : a) {
-            i.next();
-            i.set((E) e);
-        }
-    }
-
-1. This allows multiple inheritance as Traits do in Scala.
-2. Implementing multiple interfaces defining the exact same default 
-method is a compilation error.
-3. You cannot define variables in an interface so you cannot keep state in
-default methods except by passing in a state keeping object.
+Overview:
+<http://www.studytrails.com/java/java8/java8_collections_new_methods.jsp>
 
 !
 
 Interfaces - static methods:
 ---
 
-Works like for classes.  They are available just by implementing the
-interface (which is beneficial for λ-expressions).  Comparator has
-added ".comparing(...)" method.
+Works like for classes.  They are available directly without having
+to instantiate a class (which is beneficial for λ-expressions).
 
-(FIXME:  Better example.)
+    System.out.println(Function.identity().apply(42));
+    // 42
+
+(_many_ new static methods on Comparator)
 
 !
 
@@ -937,8 +911,47 @@ Of course this can be abused...
         }
     }
 
-http://stackoverflow.com/q/34710274/53897
+<http://stackoverflow.com/q/34710274/53897>
 
+!
+
+Interfaces - default methods:
+---
+
+Pre-Java 8 it was impossible to add new methods to interfaces without breaking
+existing code as these new methods needed to be implemented too.
+
+A `default` method has an implementation directly in the interface, and
+does not _have_ to be implemented (but may) when instantiated.
+
+        List<String> l = Arrays.asList("abc", "Bc", "a");
+        l.sort(Comparator.naturalOrder());
+        System.out.println(l); // [Bc, a, abc]
+
+Spot the two methods that wasn't possible in Java 7.
+
+!
+
+The implementation in `java.util.List` looks like:
+
+    default void sort(Comparator<? super E> c) {
+        ....
+    }
+
+
+1. This allows multiple inheritance as Traits do in Scala.
+2. Implementing multiple interfaces defining the exact same default 
+method is a compilation error.
+3. You cannot define variables in an interface so you cannot keep state in
+default methods except by passing in a state keeping object.
+
+
+!
+
+Comparators
+---
+
+FIXME
 
 !
 
@@ -947,14 +960,25 @@ Optional - defusing `null` values
 
 A `java.util.Optional<T>` either holds exactly one T instance, or is empty.
 
+    System.out.println(Optional.of("!").isPresent());
+    // true
+    System.out.println(Optional.empty().isPresent());
+    // false
+    System.out.println(Optional.ofNullable(null).isPresent());
+    // false
+
+
+!
+
 Methods:
+
 * `empty()` - return empty Optional instance.
 * `filter(Predicate)` - if value is present and matches predicate return Optional describing value else an empty Optional.
 * `flatMap(Function)` - if value is present, apply function to value, else return empty Optional.
-* `get()` - gets the element (if empty, throw NoSuchElementException)
+* `get()` - gets the element or throw `NoSuchElementException`
 * `ifPresent(Consumer)` - if value is present, invoke consumer with value, otherwise do nothing.
 * `isPresent()` - returns true if value present, false otherwise.
-* `of(T)` - returns optional with value. If value is null, throw exception.
+* `of(T)` - throw exception if value==null, or return Optional value.
 * `ofNullable(T)` - returns optional with value if non-null, otherwise an empty Optional.
 * `orElse(T)` - return value held if present, otherwise return argument.
 * `orElseThrow(Supplier<X>)` - return value if present, otherwise throw the exception created by the provided supplier.
@@ -994,13 +1018,19 @@ Lambda calculus is a universal model of computation equivalent to a Turing machi
 variable in a function**._
 
 !
-Remember
+
+Three parts:
 ---
 
-* λ-expressions are _declarations_, not _invocations_.   Actually invoking the
+    (String s) -> "Hello " + s
+
+* Zero or more comma-separated variable definitions in parenthesis.
+* `->`
+* Statement or block to invoke.  Return type deduced by compiler.
+
+λ-expressions are _declarations_, not _invocations_.   Actually invoking the
 code must be done "outside" the lambda expression itself.
 
-* FIXME: more stuff
 
 !
 
@@ -1017,8 +1047,9 @@ A single statement:
 
     (int a, int b, int c) -> a + b + c
 
-Zero or more comma separated variable definitions in parenthesis, `->` and
-an expression to be evaluated.
+Again: Zero or more comma separated variable definitions in parenthesis, `->` and
+an expression to be evaluated.  Compiler deduces return type from
+invocation context.
 
 !
 
@@ -1040,11 +1071,32 @@ If there is no return statement, it corresponds to a `void` method.
 Inferred parameter types:
 ---
 
+The parameter type(s) may be explicitly mentioned:
+
+    (String s) -> "Hello " + s
+
+The compiler may be able to deduce the parameter type(s) from
+the context, and then it may be omitted:
+
+    (s) -> "Hello " + s
+
+If there is only one parameter and its type is inferred, the parenthesis is optional:
+
+    s -> "Hello " + s
+
+
+
+
+
+!
+
+Examples:
+---
+
     (x) -> x + 1
     (s) -> "Hello " + s
     (a, b, c) -> a + b + c
 
-If there is only one parameter the parenthesis is optional:
 
     x -> x + 1
     s -> "Hello " + s
@@ -1059,8 +1111,8 @@ be explicitly typed.
 
 Scope:
 ---
-Lambdas use lexical scope in the same way as a normal `{}`-delimited block, so as with
-anonymous classes it is allowed to
+Lambdas use lexical scope in the same way as a normal `{}`-delimited block, so - as with
+anonymous classes - they are allowed to
 refer to variables outside the lambda if they are "final or effectively final".
 
 Variables may be overridden if needed.
@@ -1070,20 +1122,78 @@ whose values are never changed after they are initialized - the `final` keyword 
 _not_
 required!
 
-Note: `this` is unchanged inside the lambda, and doesn't refer to the lambda itself!
+Note: `this` is unchanged inside the lambda, and does _not_ refer to the lambda itself!
 
 !
 Interface underneath:
 ---
 
 Regardless where a λ-expression is used, it _must_ implement an interface
-with only one abstract method!
+with only one abstract method!  This is officially called a "functional interface".
 
 A λ-expression may only throw those exceptions declared in the interface.
 
 The JRE has functional interfaces with up to two parameters (including native types).
 None of these allow throwing checked exceptions.  Streams use these so
 they don't accept these λ-expressions either.
+
+!
+Method references
+---
+
+Some simple λ-expressions may be abbreviated even further with the new method
+reference syntax.
+
+    context::method
+
+These two are identical:
+
+    Optional.of("!").ifPresent(System.out::println);
+    Optional.of("!").ifPresent(e -> System.out.println(e));
+
+!
+
+Reference to a constructor:
+---
+
+    e -> new Double(e)
+
+can be abbreviated as
+
+    Double::new
+
+Type information may be provided:
+
+    HashSet<String>::new
+
+!
+
+Reference to a an instance method of a type
+---
+
+    List<String> l = Arrays.asList("abc", "Bc", "a");
+    l.sort(Comparator.comparing(String::length));
+    System.out.println(l); // [a, Bc, abc]
+
+`(String e) -> e.length())` is abbreviated with the method reference
+`String::length`, and  is used to
+create a comparator that sorts strings after length.
+
+
+!
+
+Reference to a static method:
+---
+
+FIXME:
+
+!
+
+Reference to an instance method on a specific variable:
+---
+
+    Optional.of("!").ifPresent(System.out::println);
+
 
 
 
@@ -1208,6 +1318,47 @@ types.  If you only use objects you can ignore them.  The Bi-prefix means two
 arguments instead of one.
 
 !
+
+Streams:
+---
+
+Ever written code like:
+
+    ....
+    for (String s : foo) {
+      doStuff(s);
+    }
+
+and wished that that loop
+could be easily put in a library method, but that it was tedious to
+refactor the `doStuff(...)` method into a anonymous class implementing some not-very-useful
+interface, unless you introduced some non-standard library or implemented everything yourself?
+
+!
+
+Old-school loop:
+
+    for (String s : foo) {
+       System.out.println(s);
+    }
+
+The new `stream()` method on collections enable a new large API for handling
+collections one item at a time.
+
+    foo.stream().forEach(System.out::println);
+
+The `.forEach(...)` method that executes
+the lambda expression (of which method references is a special case) on
+each item.
+
+!
+
+FIXME:
+
+
+!
+
+FIXME
 
 A stream version of the example in the tutorial -
 https://docs.oracle.com/javase/tutorial/datetime/iso/timezones.html

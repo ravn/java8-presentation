@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ public class Main {
             doStuff(s);
         }
 
+        foo.stream().forEach(System.out::println);
         List<String> l = Arrays.asList("abc", "Bc", "a");
         IntStream si = Arrays.stream(new int[]{1, 2, 3});
         LongStream sl = Arrays.stream(new long[]{1, 2, 3});
@@ -78,6 +80,14 @@ public class Main {
         os.ifPresent(System.out::println);
         System.out.println(os.orElse("orElse"));
         Optional.of("Hello").ifPresent(System.out::println);
+        Optional.of("Hello").ifPresent(e->System.out.println(e));
+        System.out.println(Optional.of("!").isPresent());
+        // true
+        System.out.println(Optional.empty().isPresent());
+        // false
+        System.out.println(Optional.ofNullable(null).isPresent());
+        // false
+
         l.sort(Comparator.naturalOrder());
         System.out.println(l);
         l.sort(Comparator.comparing(String::length));
@@ -248,6 +258,14 @@ public class Main {
         // true
         System.out.println(Paths.get("/tmp/foo").endsWith("oo"));
         // FALSE <- not string level.
+
+        // default
+        Map<String, Integer> ls = new HashMap<>();
+        System.out.println(ls.putIfAbsent("a", 2));
+        System.out.println(ls.putIfAbsent("a", 2));
+        // static
+        System.out.println(Function.identity().apply(42));
+
     }
 
 

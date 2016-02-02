@@ -13,6 +13,9 @@ To run presentation:
 
 A browser should open.  Use navigation keys.
 
+A PDF can be created containing the slides.  Follow instructions
+in the "Printing Support" section of <https://github.com/jsakamoto/MarkdownPresenter>
+
 The markdown dialect used is "showdown".  See
 documentation at
 https://github.com/showdownjs/showdown/wiki/Showdown%27s-Markdown-syntax

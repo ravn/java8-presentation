@@ -18,7 +18,10 @@ JVM stuff first...
 
 
 !
-### `invokedynamic` byte code instruction added.
+
+### invokedynamic
+
+New byte code instruction added.
 
 Allows user space code to help Hotspot to resolve
 type information at runtime instead of compile time.
@@ -27,7 +30,7 @@ Is very helpful to "duck typing"-languages like JRuby.
 
 Also used for creating the object representation for λ-expressions.
 
-http://blog.headius.com/2008/09/first-taste-of-invokedynamic.html
+<http://blog.headius.com/2008/09/first-taste-of-invokedynamic.html>
 
 !
 
@@ -52,7 +55,7 @@ Example:
 
 ![](/Java8_Metaspace_dynamic_resize.png "java 8 gc output from article")
 
-https://dzone.com/articles/java-8-permgen-metaspace
+<https://dzone.com/articles/java-8-permgen-metaspace>
 
 !
 
@@ -101,7 +104,7 @@ profile X (a well defined subset of the JRE).
 * "compact3" is "compact2" + JMX/JNDI/security/annotations
 
 
-`https://blogs.oracle.com/jtc/entry/a_first_look_at_compact`
+<https://blogs.oracle.com/jtc/entry/a_first_look_at_compact>
 
 !
 
@@ -178,20 +181,20 @@ Note:  All output shown has been generated on  Linux.
 Path + Paths:
 ---
 
-    Path p1 = Paths.get("/tmp/foo");
-    Path p2 = Paths.get(args[0]);
-    Path p3 = Paths.get(URI.create("file:///Users/joe/FileTest.java"));
-    Path p4 = FileSystems.getDefault().getPath("/users/sally");
-    Path p5 = Paths.get(System.getProperty("user.home"),"logs", "foo.log");
+    Paths.get("/tmp/foo");
+    Paths.get(args[0]);
+    Paths.get(URI.create("file:///Users/joe/FileTest.java"));
+    FileSystems.getDefault().getPath("/users/sally");
 
-    System.out.println(p5.toAbsolutePath());
-    // /home/tra/logs/foo.log
-    System.out.println(p5.toUri());
-    // file:///home/tra/logs/foo.log
-    System.out.println(p5.toRealPath());
-    // Exception in thread "main" NoSuchFileException: /home/tra/logs/foo.log
-    System.out.println(Paths.get("/proc", ".", "..", "tmp").normalize());
-    // /tmp
+    Path p5 = Paths.get(System.getProperty("user.home"),
+                        "logs", "foo.log");
+
+    p5.toAbsolutePath() // "/home/tra/logs/foo.log"
+    p5.toUri()          // "file:///home/tra/logs/foo.log"
+    Paths.get("/proc", ".", "..", "tmp").normalize() // "/tmp"
+
+    p5.toRealPath()
+    // Exception ...NoSuchFileException: /home/tra/logs/foo.log
 
 
 !
@@ -483,7 +486,7 @@ Bridging methods:
 LocalDate + LocalTime + LocalDateTime
 ---
 
-Note: `Month` and `DayOfWeek` enums can make code more readable. `Year` class has `isLeap()` method to hel
+Note: `Month` and `DayOfWeek` enums can make code more readable. `Year` class has `isLeap()` method to help
 identify leap years.
 
 * LocalDate represents a date as seen from the context of the observer, like a calendar on the wall.
@@ -793,7 +796,7 @@ together like user input being used in system commands, or sensitive
 data in log statements.
 * `@m` - ensure units are dealt with properly.
 
-http://types.cs.washington.edu/checker-framework/
+<http://types.cs.washington.edu/checker-framework/>
 
 !
 
@@ -810,10 +813,10 @@ String.substring(...)
 ---
 Note:  Important implementation change!
 
-Now create a new String, instead of pointing to same underlying char
-array as the original String, so the char array could not be garbage
-collected even when the original String went out of scope.  Fixed in
-Java 1.7.0_06.
+* `String.substring` used the same underlying char array from the
+original string, so it could not be garbage collected when the original string
+went out of scope.
+* Fixed in Java 1.7.0_06.
 
 <http://stackoverflow.com/a/20275133/53897>
 
@@ -899,7 +902,8 @@ to instantiate a class (which is beneficial for λ-expressions).
     System.out.println(Function.identity().apply(42));
     // 42
 
-(_many_ new static methods on Comparator)
+_Many_ new static methods on Comparator, making it much easier to create
+a new comparator without having to code the full `compare(..)` method.
 
 !
 
@@ -939,7 +943,7 @@ The implementation in `java.util.List` looks like:
     }
 
 
-1. This allows multiple inheritance as Traits do in Scala.
+1. This allows restricted multiple inheritance (see Scala Traits)
 2. Implementing multiple interfaces defining the exact same default 
 method is a compilation error.
 3. You cannot define variables in an interface so you cannot keep state in
@@ -1017,6 +1021,8 @@ Lambda calculus is a universal model of computation equivalent to a Turing machi
 λ is used in lambda terms (also called lambda expressions) to **denote binding a
 variable in a function**._
 
+tl;dr - nicer syntax on anonymous classes.
+
 !
 
 Three parts:
@@ -1047,7 +1053,7 @@ A single statement:
 
     (int a, int b, int c) -> a + b + c
 
-Again: Zero or more comma separated variable definitions in parenthesis, `->` and
+Again: Zero or more comma separated variable definitions in parenthesis, `->`, and
 an expression to be evaluated.  Compiler deduces return type from
 invocation context.
 
@@ -1060,10 +1066,12 @@ Block:
                 System.currentTimeMillis()
             ) }
 
+
     (String s) -> { log.debug("{}", s);
                     return s;
                   }
 
+Block is surrounded by `{` and `}`  and contains zero or more statements.
 If there is no return statement, it corresponds to a `void` method.
 
 !
@@ -1120,22 +1128,25 @@ Variables may be overridden if needed.
 "Effectively final variables" mean variables or parameters
 whose values are never changed after they are initialized - the `final` keyword is
 _not_
-required!
+required as with anonymous classes!
 
-Note: `this` is unchanged inside the lambda, and does _not_ refer to the lambda itself!
+Note: `this` is unchanged inside the lambda, and does _not_ refer to the
+lambda itself but the surrounding object!
 
 !
 Interface underneath:
 ---
 
-Regardless where a λ-expression is used, it _must_ implement an interface
+Regardless where a λ-expression is used, it `<blink>`_must_`</blink>`
+implement an interface
 with only one abstract method!  This is officially called a "functional interface".
 
 A λ-expression may only throw those exceptions declared in the interface.
 
 The JRE has functional interfaces with up to two parameters (including native types).
 None of these allow throwing checked exceptions.  Streams use these so
-they don't accept these λ-expressions either.
+they don't accept these λ-expressions either. Word of God: Write exception wrappers.
+
 
 !
 Method references
@@ -1175,7 +1186,7 @@ Reference to a an instance method of a type
     l.sort(Comparator.comparing(String::length));
     System.out.println(l); // [a, Bc, abc]
 
-`(String e) -> e.length())` is abbreviated with the method reference
+`(String e) -> e.length()` is abbreviated with the method reference
 `String::length`, and  is used to
 create a comparator that sorts strings after length.
 
@@ -1354,6 +1365,10 @@ each item.
 !
 
 FIXME:
+
+!
+
+![Zzzz!](/3027095-inline-i-calvin.jpg "sleepy cat")
 
 
 !

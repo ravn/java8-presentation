@@ -1052,12 +1052,13 @@ Three parts:
 
     (String s) -> "Hello " + s
 
+
 * Zero or more comma-separated variable definitions in parenthesis.
 * `->`
 * Statement or block to invoke.  Return type deduced by compiler.
 
 λ-expressions are _declarations_, not _invocations_.   Actually invoking the
-code must be done "outside" the lambda expression itself.
+code must be done "outside" the  λ-expression itself.
 
 
 !
@@ -1169,7 +1170,7 @@ Variables may be overridden if needed.
 `this` is unchanged inside the lambda, and does _not_ refer to the
 lambda itself but the surrounding object!
 
-<http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-final.html>
+###### <http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-final.html>
 
 !
 Functional Interface underneath:
@@ -1387,53 +1388,97 @@ one item at a time, resulting in an answer.
 
 * Map-reduce with LOTS of syntactic sugar.
 * Lazy evaluation.
-* Looks like functional programming (like Java looks like C! &#128520;) and SQL.
-* Supports parallel processing in the current JVM.
+* Parallel/sequential processing in the current JVM.
+* Looks like functional programming and SQL.
+* But isn't.
+* But it looks like!
+
+It is enough to get actual work done!
 
 !
 
-Map-reduce:
+Map-Reduce:
 ---
 
+Handle a large input set consisting of similar objects, by:
 
+1. Decide if running sequentially or in parallel.
+1. Specify what to do with each input element. ("map" input element to output element)
+1. Specify how to add each output element to the final result. ("reduce")
 
-Streams:
+An example could be: "given a list, square each element and return their sum".
+
+The framework then distributes out the input elements, let the mappers work,
+collects the results and reduce them to the final result.
+
+###### There is more to it than that but we work in-memory in a single JVM
+
+!
+
+Recipe:
+
+1. Start with a `Collection<T>``.
+2. Get `Stream<T>` with either `.stream()` or `.parallelStream()`
+3. Apply zero or more transformations like `.map(...)`
+4. Reduce the stream to the final result with e.g. `.collect(Collectors.toList())`.
+
+```
+Arrays.asList(1,2,3,4).stream()
+      .map(e -> e + 1)
+      .collect(Collectors.toList()) // [2, 3, 4, 5]
+```
+
+###### Beware of autoboxing which happens here!!
+!
+
+"_given a list, square each element and return their sum_"
 ---
 
-Ever written code like:
+```
+Arrays.asList(1,2,3,4).stream()
+      .mapToInt(Integer::intValue)
+      .map(e -> e * e)
+      .sum() // 30
+```
 
-    ....
-    for (String s : foo) {
-      doStuff(s);
-    }
-
-and wished that that loop
-could be easily put in a library method, but that it was tedious to
-refactor the `doStuff(...)` method into a anonymous class implementing some not-very-useful
-interface, unless you introduced some non-standard library or implemented everything yourself?
+###### Autoboxing is avoided by using `mapToInt(...)` to convert from `Stream<Integer>` to `IntStream`!  Additionally `IntStream` has the very handy `sum()` method returning the sum of all the elements in the stream.
 
 !
 
-Old-school loop:
+Number ranges:
 
-    for (String s : foo) {
-       System.out.println(s);
-    }
+    IntStream.of(1,2,3,4).map(e -> e * e).sum()       // 30
+    IntStream.range(1,5).map(e -> e * e).sum()        // 30
+    LongStream.rangeClosed(1,4).map(e -> e * e).sum() // 30
 
-The new `stream()` method on collections enable a new large API for handling
-collections one item at a time.
-
-    foo.stream().forEach(System.out::println);
-
-The `.forEach(...)` method that executes
-the lambda expression (of which method references is a special case) on
-each item.
+###### DoubleStream hasn't range/rangeClose, but all the rest.
 
 !
 
-FIXME:
+Stream methods returning a Stream:
+---
 
+In other words these can be chained.
+
+* `concat(Stream1, Stream2)` - the concatenation of two streams
+* `distinct()` - remove duplicates
+* `filter(Predicate)` - remove those returning false.
+* `flatMap(Function)` - map returning element\_S\_.  More later.
+* `limit(maxSize)` - do not return more than maxSize elements.
+* `iterate(seed, function)` - element(n+1) = function(element(n))
+* `of(...)` - stream of the zero or more values provided.
+* `peek(...)` - apply consumer to element.  More later.
+* `skip(n)` - discard the first n elements of the stream.
+* `sorted()` - sort all elements.
+
+###### <https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html>
 !
+
+
+
+
+
+
 
 ![Zzzz!](/3027095-inline-i-calvin.jpg "sleepy cat")
 

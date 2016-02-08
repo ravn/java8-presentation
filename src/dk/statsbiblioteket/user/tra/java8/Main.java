@@ -271,6 +271,17 @@ public class Main {
         {
             System.out.println(plusOne(Arrays.asList(1,2,3,4)));
         }
+        {
+            System.out.println(Arrays.asList(1,2,3,4).stream().mapToInt(Integer::intValue).map(e->e*e).sum());
+        }
+        {
+            System.out.println(IntStream.of(1,2,3,4).map(e->e*e).sum());
+            System.out.println(LongStream.rangeClosed(1,4).map(e->e*e).sum());
+        }
+        {
+            List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
+            System.out.println(la.stream().sorted().collect(Collectors.toList()));
+        }
 
     }
 

@@ -90,7 +90,9 @@ public class Main {
 
         l.sort(Comparator.naturalOrder());
         System.out.println(l);
-        l.sort(Comparator.comparing(String::length));
+        l.sort(Comparator.comparing((Function<String, Integer>) (s1) -> {
+            return s1.length();
+        }));
         System.out.println(l); // [a, Bc, abc]
 
         {
@@ -266,6 +268,18 @@ public class Main {
         // static
         System.out.println(Function.identity().apply(42));
 
+        {
+            System.out.println(plusOne(Arrays.asList(1,2,3,4)));
+        }
+
+    }
+
+    public static List<Integer> plusOne(List<Integer> l) {
+        List<Integer> result = new ArrayList<>();
+        for(Integer i : l) {
+            result.add(i + 1);
+        }
+        return result;
     }
 
 

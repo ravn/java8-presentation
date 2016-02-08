@@ -4,9 +4,6 @@ Java 8
 * Basics for all I could find of new stuff for Java 8.
 * Some Java 7 too.
 
-(This is markdown rendered on the fly as a web page presentation)
-
-
 
 !
 
@@ -69,6 +66,9 @@ stop the world.
 Alternative G1 is for +4GB heaps which can do string deduplication. May be default
 in Java 9.  Rarely stops the world.
 
+Don't mess with it unless you know exactly what you are doing.  This includes
+accepting JVM flags for previous versions of Java!
+
 !
 
 ### New tools
@@ -82,10 +82,11 @@ jdeps - static dependencies of applications and libraries.
 jjs - JVM-based JavaScript engine useful for scripting (more later)
 
 Java Flight Recorder can collect low level data for Java Mission Control
-to allow after-the-fact incident analysis. (Commercial, can be enabled at runtime)
+to allow after-the-fact incident analysis. (Commercial, can be enabled at runtime).
+Worth looking into.
 
 Advanced Management Console can give an overview of Java applications
-(and their JRE's) in an organization. Runs in WebLogic 12. (Commercial)
+and their JRE's in an organization. Runs in WebLogic 12. (Very commercial)
 
 !
 
@@ -152,7 +153,7 @@ Does not yet appear to have reached critical mass or found a killer-application.
 
 !
 
-But what can we do _in Java_ itself?
+But what can we do in _our own code_?
 ---
 
 ![](/Cute-Kitten-kittens-16096139-1280-800.jpg "ready!")
@@ -174,7 +175,8 @@ system.  Bridge:  `File.toPath()`.
 `java.nio.file.Files` - operations on file systems.
 
 
-Note:  All output shown has been generated on  Linux.
+Note:  All output shown has been generated on  Linux.  Comments indicate what
+would be printed if the expression was printed.
 
 !
 
@@ -223,7 +225,7 @@ of the file cannot be verified.
 examines the permissions at the time of execution.  Beware race conditions.
 
 `Files.isSameFile(Path, Path)` compares two paths - respecting symbolic links - to
-see if they locate the same file on the file system.
+see if they locate the same file in the file system.
 
 !
 
@@ -676,7 +678,7 @@ fully.  Note there are two kinds, ticking and standing still:
 
 * `Clock.offset(Clock, Duration)` returns a ticking clock that is offset by the specified Duration.
 * `Clock.systemUTC()` returns a clock representing the Greenwich/UTC time zone.
-* `Clock.fixed(Instant, ZoneId)` always return the same Instant.  For this clock, *time stands still*.
+* `Clock.fixed(Instant, ZoneId)` always return the same Instant.  For this clock, *time stands still*. Useful in tests.
 
 <https://docs.oracle.com/javase/tutorial/datetime/iso/clock.html>
 
@@ -706,7 +708,7 @@ java.time temporal-based classes directly with java.util.Formatter and
 String.format, using the same pattern-based formatting that you use
 with the java.util date and time classes._
 
-Left as an exercise for the interested reader O:)
+Left as an exercise for the interested reader O:-)
 
 !
 
@@ -753,7 +755,9 @@ Static checking using annotations:
 ---
 
 The JVM itself does not yet enforce any kind behavior based on
-annotations on source code (javac does).
+annotations on source code.
+
+`javac` and IDE's do!
 
 Note that annotations mentioned in the following may be in different
 packages and not immediately interchangeable.
@@ -806,6 +810,8 @@ String
 * String.substring() does not hold on to underlying char array.
 * G1 Garbage Collection deduplicates strings.
 * String.join(..) allows for easy concatenation of strings.
+
+![stringly typed cat](/d1619b87f6883eaeddd581f5d1184b79.jpg "stringly typed cat")
 
 !
 
@@ -955,12 +961,24 @@ default methods except by passing in a state keeping object.
 Comparators
 ---
 
-FIXME
+Boring - all blogs/torturials use this as _the_ example.
+
+Tons of new helper methods!  See how easy it is to sort strings by _length_:
+
+    Comparator c = Comparator.comparing(
+                       new Function<String, Integer>() {
+                           @Override
+                           public Integer apply(String s1) {
+                               return s1.length();
+                   }})); // <- Ooh, LISP!
+
 
 !
 
 Optional - defusing `null` values
 ---
+
+Tired of checking for `null` in return values?
 
 A `java.util.Optional<T>` either holds exactly one T instance, or is empty.
 
@@ -971,6 +989,8 @@ A `java.util.Optional<T>` either holds exactly one T instance, or is empty.
     System.out.println(Optional.ofNullable(null).isPresent());
     // false
 
+Best practice now for methods which return `T` which may be `null`
+is to return `Optional<T>`.  For legacy methods, wrap in `ofNullable`.
 
 !
 
@@ -986,6 +1006,8 @@ Methods:
 * `ofNullable(T)` - returns optional with value if non-null, otherwise an empty Optional.
 * `orElse(T)` - return value held if present, otherwise return argument.
 * `orElseThrow(Supplier<X>)` - return value if present, otherwise throw the exception created by the provided supplier.
+
+!
 
 !
 
@@ -1013,8 +1035,8 @@ _Because sometimes, you need a rainbow butterfly unicorn kitten._
 λ-expressions:
 ===
 
-λ-expressions are related to anonymous classes so an interface
-can be implemented without writing a whole new class, but in a more concise way.
+λ-expressions allows for implementing interfaces much more concisely than
+ anonymous classes.
 
 _λ-calculus is a formal system in mathematical logic by Alonzo Church for expressing computation based on function abstraction and application using variable binding and substitution.
 Lambda calculus is a universal model of computation equivalent to a Turing machine.
@@ -1054,8 +1076,10 @@ A single statement:
     (int a, int b, int c) -> a + b + c
 
 Again: Zero or more comma separated variable definitions in parenthesis, `->`, and
-an expression to be evaluated.  Compiler deduces return type from
-invocation context.
+an expression to be evaluated.
+
+Compiler deduces return type from
+invocation context (may be enforced by type casting the λ-expression)
 
 !
 
@@ -1072,7 +1096,8 @@ Block:
                   }
 
 Block is surrounded by `{` and `}`  and contains zero or more statements.
-If there is no return statement, it corresponds to a `void` method.
+`return` statements determines return type. If there is no `return` statement,
+it corresponds to a `void` method.
 
 !
 
@@ -1112,40 +1137,54 @@ Examples:
 
 The compiler makes an effort to infer the parameter types and the result type from
 the surrounding context.  It may give up, and the parameters then have to
-be explicitly typed.
+be explicitly typed or a typecast applied to the whole λ-expression.
 
+!
+
+Typecasting a λ-expression:
+---
+
+    Comparator.comparing((Function<String, Integer>) (s1) -> {
+       return s1.length();
+    }));
+
+Here `(Function<String, Integer>)` is the typecast.
+This also allows the compiler to infer the type of `s1`.
+
+IntelliJ uses this for refactorings to preserve exact meaning.
 
 !
 
 Scope:
 ---
-Lambdas use lexical scope in the same way as a normal `{}`-delimited block, so - as with
-anonymous classes - they are allowed to
-refer to variables outside the lambda if they are "final or effectively final".
+λ-expressions use lexical scope in the same way as a normal `{}`-delimited block, so
+they are allowed to
+refer to variables outside the λ-expression itself if they are "final or effectively final".
+
+"Effectively final variables" mean variables where
+"_declaring it final would not cause a compilation failure._"
 
 Variables may be overridden if needed.
 
-"Effectively final variables" mean variables or parameters
-whose values are never changed after they are initialized - the `final` keyword is
-_not_
-required as with anonymous classes!
-
-Note: `this` is unchanged inside the lambda, and does _not_ refer to the
+`this` is unchanged inside the lambda, and does _not_ refer to the
 lambda itself but the surrounding object!
 
+<http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-final.html>
+
 !
-Interface underneath:
+Functional Interface underneath:
 ---
 
 Regardless where a λ-expression is used, it `<blink>`_must_`</blink>`
 implement an interface
-with only one abstract method!  This is officially called a "functional interface".
+with only one abstract method!  This is officially called a *Functional Interface*.
 
-A λ-expression may only throw those exceptions declared in the interface.
+A λ-expression may only throw the checked exceptions declared in the interface implemented.
 
 The JRE has functional interfaces with up to two parameters (including native types).
-None of these allow throwing checked exceptions.  Streams use these so
-they don't accept these λ-expressions either. Word of God: Write exception wrappers.
+None of these allow throwing checked exceptions.  This is important with Streams.
+
+Word of God: Write exception wrappers.
 
 
 !
@@ -1182,30 +1221,36 @@ Type information may be provided:
 Reference to a an instance method of a type
 ---
 
+`(String e) -> e.length()` can be abbreviated with the instance method reference
+`String::length`.
+
     List<String> l = Arrays.asList("abc", "Bc", "a");
     l.sort(Comparator.comparing(String::length));
     System.out.println(l); // [a, Bc, abc]
 
-`(String e) -> e.length()` is abbreviated with the method reference
-`String::length`, and  is used to
-create a comparator that sorts strings after length.
 
+`Class::instanceMethod` can be used to refer to the instanceMethod on an instance of Class.
 
 !
 
 Reference to a static method:
 ---
 
-FIXME:
+Use `myObject::myStaticMethod`.
+
+No good example :-/
 
 !
 
 Reference to an instance method on a specific variable:
 ---
+Example:
 
     Optional.of("!").ifPresent(System.out::println);
 
+.
 
+Again, `System.out::println` is shorthand for `e -> System.out.println(e)`.
 
 
 
@@ -1239,7 +1284,8 @@ Eclipse 4.5+ Ctrl-1:
 @FunctionalInterface
 ---
 
-Interfaces _intended_ to be functional interfaces can explicitly be annotated with
+Interfaces _intended_ to be functional interfaces -
+allowing λ-expressions to implement them - can explicitly be annotated with
 `@FunctionalInterface`.  If so, compilers are required to
 check:
 
@@ -1330,6 +1376,27 @@ arguments instead of one.
 
 !
 
+
+!
+
+Streams: Iterators on steroids
+===
+
+Streams - an new Java 8 API, for handling multiple items
+one item at a time, resulting in an answer.
+
+* Map-reduce with LOTS of syntactic sugar.
+* Lazy evaluation.
+* Looks like functional programming (like Java looks like C! &#128520;) and SQL.
+* Supports parallel processing in the current JVM.
+
+!
+
+Map-reduce:
+---
+
+
+
 Streams:
 ---
 
@@ -1391,3 +1458,17 @@ what time it is now in not-whole-hour-offset timezones:
 ![Zzzz!](/ce547544ed6f035ab1b1ddef8d2388b8.jpg "sleepy cat")
 
 !
+
+Credits:
+===
+
+Presentation written in Markdown  and rendered
+with <https://github.com/jsakamoto/MarkdownPresenter>.
+
+* Use line with `!` for "New slide"
+* Small, stand-alone webserver.
+* While editing, press Space to reload slide content.
+* Instant feedback with IntelliJ markdown plugin
+* No code syntax coloring.  May be very simple to add.
+
+See <https://github.com/ravn/java8-presentation>

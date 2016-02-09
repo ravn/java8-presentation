@@ -800,6 +800,8 @@ together like user input being used in system commands, or sensitive
 data in log statements.
 * `@m` - ensure units are dealt with properly.
 
+It may also be able to detect SQL injection.
+
 <http://types.cs.washington.edu/checker-framework/>
 
 !
@@ -972,6 +974,9 @@ Tons of new helper methods!  See how easy it is to sort strings by _length_:
                                return s1.length();
                    }})); // <- Ooh, LISP!
 
+
+See <http://stackoverflow.com/a/24442897/53897> and
+<http://blog.jooq.org/2014/01/31/java-8-friday-goodies-lambdas-and-sorting/>
 
 !
 
@@ -1393,7 +1398,8 @@ one item at a time, resulting in an answer.
 * But isn't.
 * But it looks like!
 
-It is enough to get actual work done!
+It is enough to get actual work done!  The API is so rich that
+I only look at a subset of features.
 
 !
 
@@ -1404,7 +1410,7 @@ Handle a large input set consisting of similar objects, by:
 
 1. Decide if running sequentially or in parallel.
 1. Specify what to do with each input element. ("map" input element to output element)
-1. Specify how to add each output element to the final result. ("reduce")
+1. Specify how to have each output element contribute to the final result. ("reduce")
 
 An example could be: "given a list, square each element and return their sum".
 
@@ -1417,6 +1423,7 @@ collects the results and reduce them to the final result.
 
 Stream recipe:
 ---
+Do this for every stream you need.  Streams cannot be reused.
 
 1. Start with a `Collection<T>`.
 2. Get `Stream<T>` with either `.stream()` or `.parallelStream()`
@@ -1428,6 +1435,8 @@ Arrays.asList(1,2,3,4).stream() // Stream<Integer>
       .map(e -> e + 1)
       .collect(Collectors.toList()) // [2, 3, 4, 5]
 ```
+
+There are many helper methods to make 1+2 easier.
 
 ###### Beware of autoboxing which happens here!!
 !
@@ -1446,11 +1455,16 @@ Arrays.asList(1,2,3,4).stream()     // Stream<Integer>
 
 !
 
-Number ranges:
+Native streams:
+---
 
     IntStream.of(1, 2, 3, 4).map(e -> e * e).sum()     // 30
     IntStream.range(1, 5).map(e -> e * e).sum()        // 30
     LongStream.rangeClosed(1, 4).map(e -> e * e).sum() // 30
+
+    IntStream si = Arrays.stream(new int[] {1, 2, 3});
+    LongStream sl = Arrays.stream(new long[] {1, 2, 3});
+    DoubleStream sd = Arrays.stream(new double[] {1, 2, 3});
 
 ###### DoubleStream hasn't range/rangeClose, but all the rest.
 
@@ -1509,14 +1523,14 @@ before 2
 after 2
 ```
 
-###### Lazy evaluation cause one element at a time to "flow through" the stream as needed.
+###### Lazy evaluation cause one element at a time to "flow through" the stream as needed.  Only execute those steps needed to get a result!
 
 !
 
 flatMap() - zero or more return values
 ---
 
-map only returns one result. flatMap returns zero or more,
+`map` only allows one result. `flatMap` allows zero or more,
 all of which are put into the result stream.
 
 ```
@@ -1537,6 +1551,21 @@ Arrays.asList(
 
 !
 
+Stream termination to get result:
+---
+
+* `.reduce(...)` - hardcore functional programming approach
+* `.collect(collector)` - heaps of syntactic sugar on top of `reduce`
+* `findAny/findFirst/max/min` - a single element
+* `count()/`
+* `forEach(consumer)` - apply consumer to each element
+* `allMatch(...)/anyMatch(...)/noneMatch(...)` - find characteristic
+* `toArray()` - return array of all elements in stream
+
+Remember, streams cannot be reused.
+
+!
+
 Selecting a single element from a Stream:
 ---
 
@@ -1548,29 +1577,93 @@ Selecting a single element from a Stream:
 
 Returns `Optional<T>` as the selection may fail.
 
+```
+Stream.of(1, 2, 3).findFirst().orElseGet(() -> 0) // 1
+Stream.of().findFirst().orElseGet(() -> 0) // 0
+```
+
+###### Slightly different methods for IntStream/LongStream/DoubleStream.
 !
+
+Collector
+---
+
+* Goes inside  `.collect(..)`
+* Many helper methods in java.util.stream.Collectors.
+* Most of the time you want `Collectors.toList()`.
+
+```
+List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
+
+la.stream().collect(Collectors.toList())
+// [ad, bc, ba, ac]
+
+la.stream().collect(Collectors.joining("/"))
+// ad/bc/ba/ac
+
+la.stream().collect(
+    Collectors.toCollection(() -> new TreeSet<String>())
+) // [ac, ad, ba, bc]
+```
+!
+
+Collect into a Map:
+---
+
+```
+la.stream().collect(
+  Collectors.groupingBy(e -> e.substring(0, 1))
+) // {a=[ad, ac], b=[bc, ba]}
+
+Map<String, String> m = la.stream().collect(
+  Collectors.groupingBy(
+      e -> e.substring(0,1), Collectors.joining("+")
+  )
+); // {a="ad+ac", b="bc+ba"}
+
+Arrays.toString(m.entrySet().toArray())
+// [a=ad+ac, b=bc+ba]
+```
+
+###### The last line is a nice trick to pretty-print a map.
+
+
+!
+
+Reading files as streams:
+---
+
+```
+new BufferedReader(...).lines()
+
+Files.lines(Path.get("..."), Charset.defaultCharSet())
+```
+
+Remember, the method in the functional interfaces used by streams do not throw exceptions.  For files
+you will typically need to catch IOExceptions and wrap them in a RuntimeException.
+
+!
+
+Parallel streams:
+---
+
+Use `.parallelStream()` instead of `.stream()` to enable parallel processing in
+current JVM.  Very simple optimization.  Unfortunately
+has some overhead.  Do not use uncritically!
+
+Uses global ForkJoinPool:
+
+* Avoid long processing in multithreaded applications.
+* Untunable thread pool.
+
+Use unordered streams if possible.
+
+###### Rants:  <https://dzone.com/articles/think-twice-using-java-8> <https://dzone.com/articles/whats-wrong-java-8-part-iii>
+!
+
 
 ![Zzzz!](/3027095-inline-i-calvin.jpg "sleepy cat")
 
-
-!
-
-FIXME
-
-A stream version of the example in the tutorial -
-https://docs.oracle.com/javase/tutorial/datetime/iso/timezones.html
-- of printing out
-what time it is now in not-whole-hour-offset timezones:
-
-
-    LocalDateTime now = LocalDateTime.now();
-    ZoneId.getAvailableZoneIds().stream()
-        .map(zoneid -> ZoneId.of(zoneid))
-        .sorted(Comparator.comparing(Object::toString))
-        .filter(zone -> now.atZone(zone).getOffset().getTotalSeconds() % (60*60) != 0)
-        .forEach(zone -> System.out.println(zone + " " +  now.atZone(zone).getOffset()));
-
-![Zzzz!](/ce547544ed6f035ab1b1ddef8d2388b8.jpg "sleepy cat")
 
 !
 
@@ -1586,4 +1679,13 @@ with <https://github.com/jsakamoto/MarkdownPresenter>.
 * Instant feedback with IntelliJ markdown plugin
 * No code syntax coloring.  May be very simple to add.
 
+
 See <https://github.com/ravn/java8-presentation>
+
+!
+
+The End!
+===
+
+![Zzzz!](/ce547544ed6f035ab1b1ddef8d2388b8.jpg "sleepy cat")
+

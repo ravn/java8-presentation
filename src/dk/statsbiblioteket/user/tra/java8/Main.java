@@ -293,6 +293,8 @@ public class Main {
         {
             System.out.println(Arrays.asList(Arrays.asList("e", "d", "a"), Arrays.asList("c", "b")).stream()
                     .flatMap(e -> e.stream().sorted()).collect(Collectors.toList()));
+            System.out.println(Stream.of().findFirst().orElseGet(() -> 0));
+            System.out.println(Stream.of(1, 2, 3).findFirst().orElseGet(() -> 0));
         }
 
     }

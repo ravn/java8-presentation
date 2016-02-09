@@ -281,6 +281,18 @@ public class Main {
         {
             List<String> la = Arrays.asList("ad", "bc", "ba", "ac");
             System.out.println(la.stream().sorted().collect(Collectors.toList()));
+            System.out.println(Stream.concat(Stream.of(1,1),Stream.of(2,3)).collect(Collectors.toList()));
+            System.out.println(Stream.of(1,1,2).distinct().collect(Collectors.toList()));
+            System.out.println(Stream.of(1,1,2).filter(e->e!=1).collect(Collectors.toList()));
+            System.out.println(Stream.of(2, 1, 2)
+                    .peek(e -> System.out.println("before " + e))
+                    .filter(e -> e != 1)
+                    .peek(e -> System.out.println("after " + e))
+                    .collect(Collectors.toList()));
+        }
+        {
+            System.out.println(Arrays.asList(Arrays.asList("e", "d", "a"), Arrays.asList("c", "b")).stream()
+                    .flatMap(e -> e.stream().sorted()).collect(Collectors.toList()));
         }
 
     }

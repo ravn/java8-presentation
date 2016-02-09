@@ -1415,15 +1415,16 @@ collects the results and reduce them to the final result.
 
 !
 
-Recipe:
+Stream recipe:
+---
 
-1. Start with a `Collection<T>``.
+1. Start with a `Collection<T>`.
 2. Get `Stream<T>` with either `.stream()` or `.parallelStream()`
 3. Apply zero or more transformations like `.map(...)`
 4. Reduce the stream to the final result with e.g. `.collect(Collectors.toList())`.
 
 ```
-Arrays.asList(1,2,3,4).stream()
+Arrays.asList(1,2,3,4).stream() // Stream<Integer>
       .map(e -> e + 1)
       .collect(Collectors.toList()) // [2, 3, 4, 5]
 ```
@@ -1435,8 +1436,8 @@ Arrays.asList(1,2,3,4).stream()
 ---
 
 ```
-Arrays.asList(1,2,3,4).stream()
-      .mapToInt(Integer::intValue)
+Arrays.asList(1,2,3,4).stream()     // Stream<Integer>
+      .mapToInt(Integer::intValue)  // IntStream
       .map(e -> e * e)
       .sum() // 30
 ```
@@ -1447,9 +1448,9 @@ Arrays.asList(1,2,3,4).stream()
 
 Number ranges:
 
-    IntStream.of(1,2,3,4).map(e -> e * e).sum()       // 30
-    IntStream.range(1,5).map(e -> e * e).sum()        // 30
-    LongStream.rangeClosed(1,4).map(e -> e * e).sum() // 30
+    IntStream.of(1, 2, 3, 4).map(e -> e * e).sum()     // 30
+    IntStream.range(1, 5).map(e -> e * e).sum()        // 30
+    LongStream.rangeClosed(1, 4).map(e -> e * e).sum() // 30
 
 ###### DoubleStream hasn't range/rangeClose, but all the rest.
 
@@ -1458,27 +1459,96 @@ Number ranges:
 Stream methods returning a Stream:
 ---
 
-In other words these can be chained.
+In other words, these can be chained.
 
 * `concat(Stream1, Stream2)` - the concatenation of two streams
-* `distinct()` - remove duplicates
+* `distinct()` - remove duplicates.
 * `filter(Predicate)` - remove those returning false.
 * `flatMap(Function)` - map returning element\_S\_.  More later.
 * `limit(maxSize)` - do not return more than maxSize elements.
 * `iterate(seed, function)` - element(n+1) = function(element(n))
+* `map(function)` - apply/map function
 * `of(...)` - stream of the zero or more values provided.
-* `peek(...)` - apply consumer to element.  More later.
+* `peek(...)` - debug stream.  More later.
 * `skip(n)` - discard the first n elements of the stream.
 * `sorted()` - sort all elements.
 
 ###### <https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html>
+
 !
 
 
+```
+import static java.util.stream.Collectors.toList;
+
+Stream.concat(Stream.of(1,2),Stream.of(3,4))
+      .collect(toList()) // [1, 2, 3, 4]
+
+Stream.of(1,1,2).distinct().collect(toList()) // [1, 2]
+
+Stream.of(1,2).filter(e->e!=1).collect(toList())); // [2]
+
+```
+
+!
+
+peek(...) - debug tool
+---
+
+```
+Stream.of(2, 1, 2)
+   .peek(e -> System.out.println("before " + e))
+   .filter(e -> e != 1)
+   .peek(e -> System.out.println("after " + e))
+   .collect(Collectors.toList()));  // [2, 2]
+
+before 2
+after 2
+before 1
+before 2
+after 2
+```
+
+###### Lazy evaluation cause one element at a time to "flow through" the stream as needed.
+
+!
+
+flatMap() - zero or more return values
+---
+
+map only returns one result. flatMap returns zero or more,
+all of which are put into the result stream.
+
+```
+Arrays.asList(
+  Arrays.asList("e", "d", "a"), Arrays.asList("c", "b")
+) // [[e, d, a], [c, b]]
+.stream()
+.flatMap(
+    e -> e.stream().sorted()        // [a, d, e] and [b, c]
+).collect(Collectors.toList())      // [a, d, e, b, c]
+
+```
 
 
 
 
+###### Inspired by <http://www.adam-bien.com/roller/abien/entry/java_8_flatmap_example>
+
+!
+
+Selecting a single element from a Stream:
+---
+
+* `findAny()` - any element, we don't care which
+* `findFirst()` - first element
+* `max(comparator)` - largest element according to comparator.
+* `min(comparator)` - smallest element according to comparator.
+
+
+Returns `Optional<T>` as the selection may fail.
+
+!
 
 ![Zzzz!](/3027095-inline-i-calvin.jpg "sleepy cat")
 

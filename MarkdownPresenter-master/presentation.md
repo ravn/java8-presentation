@@ -1656,6 +1656,13 @@ you will typically need to catch IOExceptions and wrap them in a RuntimeExceptio
 
 !
 
+![](/B_AmQW7WwAE_Akt.jpg "imperative vs. functional separation of concerns")
+
+With a functional approach code tends to group together more.
+
+###### <http://blog.jooq.org/2015/08/13/common-sql-clauses-and-their-equivalents-in-java-8-streams/> (rant, but it has this nice figure)
+!
+
 Parallel streams:
 ---
 

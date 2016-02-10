@@ -1,9 +1,14 @@
-Java 8
+Java 8 (with cats)
 ===
+
+
+![ZZzz](/computer-cat.jpg "computer cat")
+
 
 * Basics for all I could find of new stuff for Java 8.
 * Some Java 7 too.
 
+Thorbjørn Ravn Andersen - <mailto:tra@statsbiblioteket.dk>
 
 !
 
@@ -563,7 +568,7 @@ methods, but do not have dedicated helper methods.
 Timezones
 ---
 
-Instructional video:
+Instructional video: (without cats)
 
 ![timezones](/west-bank-multiple-timezones.png "numberphile")
 
@@ -806,6 +811,7 @@ It may also be able to detect SQL injection.
 
 !
 
+
 String
 ===
 
@@ -813,7 +819,8 @@ String
 * G1 Garbage Collection deduplicates strings.
 * String.join(..) allows for easy concatenation of strings.
 
-![stringly typed cat](/d1619b87f6883eaeddd581f5d1184b79.jpg "stringly typed cat")
+![stringly typed cat](/String.jpg "stringly typed cat")
+
 
 !
 
@@ -944,7 +951,7 @@ Spot the two methods that wasn't possible in Java 7.
 
 !
 
-The implementation in `java.util.List` looks like:
+The implementation in `java.util.List<E>` looks like:
 
     default void sort(Comparator<? super E> c) {
         ....
@@ -1188,7 +1195,8 @@ with only one abstract method!  This is officially called a *Functional Interfac
 A λ-expression may only throw the checked exceptions declared in the interface implemented.
 
 The JRE has functional interfaces with up to two parameters (including native types).
-None of these allow throwing checked exceptions.  This is important with Streams.
+None of these allow throwing checked exceptions.  This is important with Streams
+which use these.
 
 Word of God: Write exception wrappers.
 
@@ -1204,8 +1212,8 @@ reference syntax.
 
 These two are identical:
 
-    Optional.of("!").ifPresent(System.out::println);
-    Optional.of("!").ifPresent(e -> System.out.println(e));
+    e -> System.out.println(e)
+    System.out::println
 
 !
 
@@ -1227,15 +1235,20 @@ Type information may be provided:
 Reference to a an instance method of a type
 ---
 
-`(String e) -> e.length()` can be abbreviated with the instance method reference
-`String::length`.
+`Class::instanceMethod` can be used to refer to the instanceMethod on an instance of Class.
+These two are identical:
+```
+(String e) -> e.length()
+String::length
+```
+
+Example:
 
     List<String> l = Arrays.asList("abc", "Bc", "a");
     l.sort(Comparator.comparing(String::length));
     System.out.println(l); // [a, Bc, abc]
 
 
-`Class::instanceMethod` can be used to refer to the instanceMethod on an instance of Class.
 
 !
 
@@ -1244,7 +1257,6 @@ Reference to a static method:
 
 Use `myObject::myStaticMethod`.
 
-No good example :-/
 
 !
 
@@ -1659,6 +1671,21 @@ Uses global ForkJoinPool:
 Use unordered streams if possible.
 
 ###### Rants:  <https://dzone.com/articles/think-twice-using-java-8> <https://dzone.com/articles/whats-wrong-java-8-part-iii>
+!
+
+Functional programming?
+---
+
+* No branching in stream.  (no zip/unzip)
+* Java only allow single return value (no tuples)
+* More than two arguments require writing more `@FunctionalInterfaces`, and currying is tedious.
+* No pattern matching :)
+
+Essentially Java 8 now have an API for applying multiple operations to collection elements
+lazily one at a time
+with the loop operations in library code, instead of explicitly having to write them in user code.
+And just that.  It is a start though!
+
 !
 
 
